@@ -15,6 +15,9 @@ const session      = require('express-session');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Render's proxy (required for rate limiting and secure cookies)
+app.set('trust proxy', 1);
+
 // ── SECURITY HEADERS (helmet) ──────────────────────────────────────────────
 // Protects against XSS, clickjacking, sniffing attacks, etc.
 app.use(helmet({
