@@ -11,6 +11,7 @@ const fs           = require('fs');
 const https        = require('https');
 const http         = require('http');
 const session      = require('express-session');
+const SqliteStore  = require('better-sqlite3-session-store')(session);
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -176,9 +177,13 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
+// Use SQLite to store sessions — survives server restarts
+const sessionDb = new Database('sessions.db');
 app.use(session({
+  store: new SqliteStore({ client: sessionDb, expired: { clear: true, intervalMs: 900000 } }),
   secret: process.env.SESSION_SECRET || 'maktaba-default-secret',
-  resave: false, saveUninitialized: false,
+  resave: false,
+  saveUninitialized: false,
   cookie: { maxAge: 7*24*60*60*1000, httpOnly: true, secure: false, sameSite: 'lax' }
 }));
 

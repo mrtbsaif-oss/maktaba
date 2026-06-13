@@ -233,7 +233,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <button class="nb" id="nb-authors" onclick="nav('authors')">Authors</button>
     <button class="nb userpill" id="nb-profile" onclick="nav('profile')">👤 <span id="nav-username"></span></button>
     <button class="nb" id="nb-account" onclick="openAuthModal()">Sign In</button>
-    <button class="nb pill" id="nb-admin" onclick="nav('admin')">⚙ Admin</button>
+    <button class="nb pill" id="nb-admin" onclick="nav('admin')" style="display:none">⚙ Admin</button>
+    <button class="nb" id="nb-admin-direct" onclick="tryAdminAccess()" style="font-size:13px">⚙</button>
   </div>
 </nav>
 
@@ -1235,6 +1236,19 @@ function toast(msg){
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeReader();});
+
+async function tryAdminAccess(){
+  // Check if already logged in as admin
+  const me = await api('GET','/api/me');
+  if(me.role==='admin'){
+    setAdmin(me);
+    nav('admin');
+    return;
+  }
+  // Show login modal focused on admin
+  openAuthModal();
+  toast('Sign in with your admin credentials.');
+}
 
 init();
 </script>
