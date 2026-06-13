@@ -100,10 +100,12 @@ async function storeFile(file, type) {
   if (!file) return { url: null, public_id: null };
   if (cloudinaryReady) {
     if (type === 'pdf') {
+      // Upload as 'image' resource_type with pdf format — avoids Cloudinary raw delivery restrictions
       const result = await uploadToCloudinary(file.buffer, {
         folder: 'maktaba/pdfs',
-        resource_type: 'raw',
-        public_id: 'pdf_' + Date.now() + '.pdf',
+        resource_type: 'image',
+        format: 'pdf',
+        public_id: 'pdf_' + Date.now(),
       });
       return { url: result.url, public_id: result.public_id };
     }
@@ -304,7 +306,7 @@ app.put('/api/books/:id', requireAdmin, uploadLimiter, memUpload.fields([{name:'
       cover_url = c.url; cover_public_id = c.public_id;
     }
     if (req.files?.pdf?.[0]) {
-      await deleteFile(existing.pdf_public_id, existing.pdf_url, 'raw');
+      await deleteFile(existing.pdf_public_id, existing.pdf_url, 'image');
       const p = await storeFile(req.files.pdf[0], 'pdf');
       pdf_url = p.url; pdf_public_id = p.public_id;
       pdf_name = req.files.pdf[0].originalname?.slice(0,200);
@@ -322,7 +324,7 @@ app.delete('/api/books/:id', requireAdmin, async (req, res) => {
     const book = db.prepare('SELECT * FROM books WHERE id=?').get(req.params.id);
     if (!book) return res.status(404).json({ error: 'Not found' });
     await deleteFile(book.cover_public_id, book.cover_url);
-    await deleteFile(book.pdf_public_id, book.pdf_url, 'raw');
+    await deleteFile(book.pdf_public_id, book.pdf_url, 'image');
     db.prepare('DELETE FROM books WHERE id=?').run(req.params.id);
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: 'Server error' }); }
@@ -388,10 +390,13 @@ app.get('/api/pdf/:id', (req, res) => {
     if (!book || !book.pdf_url) return res.status(404).json({ error: 'PDF not found' });
     let fetchUrl = book.pdf_url;
     if (cloudinaryReady && book.pdf_public_id) {
-      fetchUrl = cloudinary.utils.private_download_url(book.pdf_public_id, 'pdf', {
-        resource_type: 'raw',
+      // Generate signed URL for image-type PDF
+      fetchUrl = cloudinary.url(book.pdf_public_id, {
+        resource_type: 'image',
+        format: 'pdf',
+        type: 'upload',
+        sign_url: true,
         expires_at: Math.floor(Date.now()/1000) + 3600,
-        attachment: false,
       });
     }
     const client = fetchUrl.startsWith('https') ? https : http;
