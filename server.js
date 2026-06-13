@@ -23,15 +23,17 @@ app.set('trust proxy', 1);
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      styleSrc:   ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc:    ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc:  ["'self'", "'unsafe-inline'"],
-      imgSrc:     ["'self'", "data:", "https://res.cloudinary.com", "blob:"],
-      frameSrc:   ["'self'"],
+      defaultSrc:    ["'self'"],
+      styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:       ["'self'", "https://fonts.gstatic.com"],
+      scriptSrc:     ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      imgSrc:        ["'self'", "data:", "https://res.cloudinary.com", "blob:"],
+      frameSrc:      ["'self'"],
+      connectSrc:    ["'self'"],
     },
   },
-  crossOriginEmbedderPolicy: false, // needed for PDF iframe
+  crossOriginEmbedderPolicy: false,
 }));
 
 // ── RATE LIMITING ──────────────────────────────────────────────────────────
