@@ -923,18 +923,22 @@ async function doLogin(){
   const pass=document.getElementById('l-pass').value;
   const btn=document.getElementById('login-btn');
   btn.innerHTML='<span class="spin"></span>…';btn.disabled=true;
-  // Try admin first
+  // Try admin login first
   let res=await api('POST','/api/login',{email,password:pass});
-  if(res.error){
-    // Try user login
-    res=await api('POST','/api/user-login',{email,password:pass});
+  if(res.success && res.role==='admin'){
+    btn.innerHTML='Sign In';btn.disabled=false;
+    closeAuthModal();
+    setAdmin(res);
+    toast('Welcome back, Admin!');
+    return;
   }
+  // Try user login
+  res=await api('POST','/api/user-login',{email,password:pass});
   btn.innerHTML='Sign In';btn.disabled=false;
   if(res.error){showMsg('auth-msg','err',res.error);return;}
   closeAuthModal();
-  if(res.role==='admin'||res.email==='admin@library.com') setAdmin(res);
-  else setUser(res);
-  toast('Welcome back!');
+  setUser(res);
+  toast('Welcome back, '+res.name+'!');
 }
 
 async function doRegister(){

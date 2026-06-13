@@ -179,7 +179,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'maktaba-default-secret',
   resave: false, saveUninitialized: false,
-  cookie: { maxAge: 7*24*60*60*1000, httpOnly: true, secure: process.env.NODE_ENV==='production', sameSite: 'lax' }
+  cookie: { maxAge: 7*24*60*60*1000, httpOnly: true, secure: false, sameSite: 'lax' }
 }));
 
 function requireAdmin(req, res, next) {
@@ -200,7 +200,7 @@ app.post('/api/login', loginLimiter, (req, res) => {
     if (!admin || !bcrypt.compareSync(password, admin.password))
       return res.status(401).json({ error: 'Invalid email or password' });
     req.session.admin = { id: admin.id, email: admin.email };
-    res.json({ success: true, email: admin.email, role: 'admin' });
+    res.json({ success: true, email: admin.email, role: 'admin', name: 'Admin' });
   } catch(e) { res.status(500).json({ error: 'Server error' }); }
 });
 
