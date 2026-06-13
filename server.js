@@ -14,12 +14,9 @@ const session      = require('express-session');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-
-// Trust Render's proxy (required for rate limiting and secure cookies)
 app.set('trust proxy', 1);
 
-// ── SECURITY HEADERS (helmet) ──────────────────────────────────────────────
-// Protects against XSS, clickjacking, sniffing attacks, etc.
+// ── SECURITY ───────────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -36,92 +33,53 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// ── RATE LIMITING ──────────────────────────────────────────────────────────
-// Prevents brute-force login attacks
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,                   // max 10 login attempts per 15 min per IP
-  message: { error: 'Too many login attempts. Please wait 15 minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Prevents upload abuse
-const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 50,                   // max 50 uploads per hour per IP
-  message: { error: 'Too many uploads. Please wait an hour.' },
-});
-
-// General API limit
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 300,
-  message: { error: 'Too many requests.' },
-});
-
+const loginLimiter  = rateLimit({ windowMs:15*60*1000, max:10, message:{error:'Too many attempts.'}, standardHeaders:true, legacyHeaders:false });
+const uploadLimiter = rateLimit({ windowMs:60*60*1000, max:50, message:{error:'Too many uploads.'}, standardHeaders:true, legacyHeaders:false });
+const apiLimiter    = rateLimit({ windowMs:15*60*1000, max:300, message:{error:'Too many requests.'}, standardHeaders:true, legacyHeaders:false });
 app.use('/api/', apiLimiter);
 
 // ── CLOUDINARY ─────────────────────────────────────────────────────────────
-// Keys come ONLY from environment variables — never hardcoded
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key:    process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-const cloudinaryReady = !!(
-  process.env.CLOUDINARY_CLOUD_NAME &&
-  process.env.CLOUDINARY_API_KEY &&
-  process.env.CLOUDINARY_API_SECRET
-);
-
-console.log(cloudinaryReady
-  ? '☁️  Cloudinary connected.'
-  : '💾 No Cloudinary — saving locally.');
+const cloudinaryReady = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+console.log(cloudinaryReady ? '☁️  Cloudinary connected.' : '💾 Saving locally.');
 
 function uploadToCloudinary(buffer, options) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
-      if (err) reject(err);
-      else resolve({ url: result.secure_url, public_id: result.public_id });
+      if (err) reject(err); else resolve({ url: result.secure_url, public_id: result.public_id });
     });
     streamifier.createReadStream(buffer).pipe(stream);
   });
 }
-
 function saveLocally(buffer, filename) {
   const safe = Date.now() + '-' + filename.replace(/[^a-zA-Z0-9.\-_]/g, '_');
   fs.writeFileSync(path.join(__dirname, 'uploads', safe), buffer);
   return { url: '/uploads/' + safe, public_id: null };
 }
-
 async function storeFile(file, type) {
   if (!file) return { url: null, public_id: null };
   if (cloudinaryReady) {
     if (type === 'pdf') {
-      // Upload as 'image' resource_type with pdf format — avoids Cloudinary raw delivery restrictions
       const result = await uploadToCloudinary(file.buffer, {
-        folder: 'maktaba/pdfs',
-        resource_type: 'image',
-        format: 'pdf',
+        folder: 'maktaba/pdfs', resource_type: 'image', format: 'pdf',
         public_id: 'pdf_' + Date.now(),
       });
       return { url: result.url, public_id: result.public_id };
     }
     return uploadToCloudinary(file.buffer, {
-      folder: 'maktaba/images',
-      resource_type: 'image',
+      folder: 'maktaba/images', resource_type: 'image',
       transformation: [{ width: 600, crop: 'limit', quality: 'auto' }],
     });
   }
   return saveLocally(file.buffer, file.originalname);
 }
-
-async function deleteFile(public_id, url, resource_type) {
-  const rtype = resource_type || 'image';
+async function deleteFile(public_id, url, resource_type='image') {
   if (cloudinaryReady && public_id) {
-    try { await cloudinary.uploader.destroy(public_id, { resource_type: rtype }); } catch(e) {}
+    try { await cloudinary.uploader.destroy(public_id, { resource_type }); } catch(e) {}
   } else if (url && url.startsWith('/uploads/')) {
     const f = path.join(__dirname, url);
     if (fs.existsSync(f)) try { fs.unlinkSync(f); } catch(e) {}
@@ -130,13 +88,13 @@ async function deleteFile(public_id, url, resource_type) {
 
 // ── DATABASE ───────────────────────────────────────────────────────────────
 if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
-
 const db = new Database('maktaba.db');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS books (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL, author TEXT NOT NULL, genre TEXT NOT NULL,
+    language TEXT DEFAULT 'English',
     emoji TEXT DEFAULT '📖', description TEXT,
     cover_url TEXT, cover_public_id TEXT,
     pdf_name TEXT, pdf_url TEXT, pdf_public_id TEXT,
@@ -151,92 +109,257 @@ db.exec(`
   );
   CREATE TABLE IF NOT EXISTS admins (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE, password TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(user_id, book_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS reading_progress (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'reading',
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(user_id, book_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(user_id, book_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE
   );
 `);
 
-// Create default admin with HASHED password if not exists
-const existingAdmin = db.prepare('SELECT id FROM admins WHERE email=?').get('admin@library.com');
-if (!existingAdmin) {
-  // Use ADMIN_PASSWORD env var if set, otherwise use default
-  const rawPassword = process.env.ADMIN_PASSWORD || 'admin123';
-  const hashed = bcrypt.hashSync(rawPassword, 12);
-  db.prepare('INSERT INTO admins (email,password) VALUES (?,?)').run('admin@library.com', hashed);
-  console.log('✅ Admin created. Password:', rawPassword === 'admin123'
-    ? 'admin123 (⚠️  CHANGE THIS — set ADMIN_PASSWORD env var)'
-    : '(from ADMIN_PASSWORD env var)');
-}
+// Add language column if upgrading from old DB
+try { db.exec(`ALTER TABLE books ADD COLUMN language TEXT DEFAULT 'English'`); } catch(e) {}
 
+// Default admin
+if (!db.prepare('SELECT id FROM admins WHERE email=?').get('admin@library.com')) {
+  const raw = process.env.ADMIN_PASSWORD || 'admin123';
+  db.prepare('INSERT INTO admins (email,password) VALUES (?,?)').run('admin@library.com', bcrypt.hashSync(raw, 12));
+  console.log('✅ Admin created:', raw === 'admin123' ? 'admin123 (change this!)' : 'from env');
+}
 console.log('✅ Database ready.');
 
-// ── MULTER — file type validation + size limits ────────────────────────────
+// ── MULTER ─────────────────────────────────────────────────────────────────
 const memUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+  limits: { fileSize: 50*1024*1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (allowed.includes(file.mimetype)) cb(null, true);
-    else cb(new Error('Only PDF and image files are allowed'));
+    const ok = ['application/pdf','image/jpeg','image/png','image/webp','image/gif'].includes(file.mimetype);
+    ok ? cb(null, true) : cb(new Error('Only PDF and image files allowed'));
   }
 });
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '1mb' }));        // prevent huge JSON payloads
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  secret: process.env.SESSION_SECRET || (() => {
-    console.warn('⚠️  SESSION_SECRET not set — using insecure default. Set it in env vars!');
-    return 'maktaba-default-insecure-secret';
-  })(),
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,   // JS can't read the cookie
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    sameSite: 'lax',  // CSRF protection
-  }
+  secret: process.env.SESSION_SECRET || 'maktaba-default-secret',
+  resave: false, saveUninitialized: false,
+  cookie: { maxAge: 7*24*60*60*1000, httpOnly: true, secure: process.env.NODE_ENV==='production', sameSite: 'lax' }
 }));
 
 function requireAdmin(req, res, next) {
   if (req.session?.admin) return next();
   res.status(401).json({ error: 'Not authenticated' });
 }
+function requireUser(req, res, next) {
+  if (req.session?.user || req.session?.admin) return next();
+  res.status(401).json({ error: 'Please log in' });
+}
 
-// ── AUTH ───────────────────────────────────────────────────────────────────
+// ── AUTH — ADMIN ───────────────────────────────────────────────────────────
 app.post('/api/login', loginLimiter, (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
-    // Sanitize input length
-    if (email.length > 200 || password.length > 200)
-      return res.status(400).json({ error: 'Invalid input' });
     const admin = db.prepare('SELECT * FROM admins WHERE email=?').get(email.trim().toLowerCase());
-    // Use bcrypt compare — constant time, prevents timing attacks
     if (!admin || !bcrypt.compareSync(password, admin.password))
       return res.status(401).json({ error: 'Invalid email or password' });
     req.session.admin = { id: admin.id, email: admin.email };
-    res.json({ success: true, email: admin.email });
+    res.json({ success: true, email: admin.email, role: 'admin' });
   } catch(e) { res.status(500).json({ error: 'Server error' }); }
 });
 
 app.post('/api/logout', (req, res) => { req.session.destroy(); res.json({ success: true }); });
-app.get('/api/me', (req, res) => res.json({ admin: req.session?.admin || null }));
 
-// Change password (admin only)
+app.get('/api/me', (req, res) => {
+  if (req.session?.admin) return res.json({ role: 'admin', email: req.session.admin.email });
+  if (req.session?.user)  return res.json({ role: 'user',  ...req.session.user });
+  res.json({ role: null });
+});
+
 app.post('/api/change-password', requireAdmin, (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both fields required' });
-    if (newPassword.length < 8) return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Min 8 characters' });
     const admin = db.prepare('SELECT * FROM admins WHERE id=?').get(req.session.admin.id);
     if (!bcrypt.compareSync(currentPassword, admin.password))
-      return res.status(401).json({ error: 'Current password is incorrect' });
-    const hashed = bcrypt.hashSync(newPassword, 12);
-    db.prepare('UPDATE admins SET password=? WHERE id=?').run(hashed, admin.id);
+      return res.status(401).json({ error: 'Current password incorrect' });
+    db.prepare('UPDATE admins SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword, 12), admin.id);
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+// ── AUTH — USERS ───────────────────────────────────────────────────────────
+app.post('/api/register', loginLimiter, (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'All fields required' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (db.prepare('SELECT id FROM users WHERE email=?').get(email.trim().toLowerCase()))
+      return res.status(400).json({ error: 'Email already registered' });
+    const result = db.prepare('INSERT INTO users (name,email,password) VALUES (?,?,?)')
+      .run(name.trim().slice(0,100), email.trim().toLowerCase().slice(0,200), bcrypt.hashSync(password, 10));
+    const user = db.prepare('SELECT id,name,email,created_at FROM users WHERE id=?').get(result.lastInsertRowid);
+    req.session.user = { id: user.id, name: user.name, email: user.email };
+    res.json({ success: true, ...user });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.post('/api/user-login', loginLimiter, (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const user = db.prepare('SELECT * FROM users WHERE email=?').get(email.trim().toLowerCase());
+    if (!user || !bcrypt.compareSync(password, user.password))
+      return res.status(401).json({ error: 'Invalid email or password' });
+    req.session.user = { id: user.id, name: user.name, email: user.email };
+    res.json({ success: true, id: user.id, name: user.name, email: user.email });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+// ── ADMIN: GET ALL USERS ───────────────────────────────────────────────────
+app.get('/api/admin/users', requireAdmin, (req, res) => {
+  try {
+    const users = db.prepare('SELECT id,name,email,created_at FROM users ORDER BY created_at DESC').all();
+    res.json(users.map(u => ({
+      ...u,
+      favorites: db.prepare('SELECT COUNT(*) as c FROM favorites WHERE user_id=?').get(u.id).c,
+      reviews:   db.prepare('SELECT COUNT(*) as c FROM reviews WHERE user_id=?').get(u.id).c,
+    })));
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.delete('/api/admin/users/:id', requireAdmin, (req, res) => {
+  try {
+    db.prepare('DELETE FROM users WHERE id=?').run(req.params.id);
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+// ── FAVORITES ──────────────────────────────────────────────────────────────
+app.get('/api/favorites', requireUser, (req, res) => {
+  try {
+    const uid = req.session.user?.id;
+    if (!uid) return res.json([]);
+    const favs = db.prepare(`
+      SELECT b.* FROM books b
+      JOIN favorites f ON f.book_id = b.id
+      WHERE f.user_id = ?
+      ORDER BY f.created_at DESC
+    `).all(uid);
+    res.json(favs);
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.post('/api/favorites/:bookId', requireUser, (req, res) => {
+  try {
+    const uid = req.session.user?.id;
+    if (!uid) return res.status(401).json({ error: 'Login required' });
+    const existing = db.prepare('SELECT id FROM favorites WHERE user_id=? AND book_id=?').get(uid, req.params.bookId);
+    if (existing) {
+      db.prepare('DELETE FROM favorites WHERE user_id=? AND book_id=?').run(uid, req.params.bookId);
+      res.json({ favorited: false });
+    } else {
+      db.prepare('INSERT INTO favorites (user_id,book_id) VALUES (?,?)').run(uid, req.params.bookId);
+      res.json({ favorited: true });
+    }
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+// ── READING PROGRESS ───────────────────────────────────────────────────────
+app.post('/api/progress/:bookId', requireUser, (req, res) => {
+  try {
+    const uid = req.session.user?.id;
+    if (!uid) return res.status(401).json({ error: 'Login required' });
+    const { status } = req.body; // 'reading', 'finished', 'want'
+    const valid = ['reading','finished','want'];
+    if (!valid.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+    db.prepare('INSERT OR REPLACE INTO reading_progress (user_id,book_id,status) VALUES (?,?,?)')
+      .run(uid, req.params.bookId, status);
+    res.json({ success: true, status });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.get('/api/progress', requireUser, (req, res) => {
+  try {
+    const uid = req.session.user?.id;
+    if (!uid) return res.json([]);
+    const rows = db.prepare(`
+      SELECT b.*, rp.status FROM books b
+      JOIN reading_progress rp ON rp.book_id = b.id
+      WHERE rp.user_id = ?
+      ORDER BY rp.created_at DESC
+    `).all(uid);
+    res.json(rows);
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+// ── REVIEWS ────────────────────────────────────────────────────────────────
+app.get('/api/reviews/:bookId', (req, res) => {
+  try {
+    const reviews = db.prepare(`
+      SELECT r.*, u.name as user_name
+      FROM reviews r JOIN users u ON u.id = r.user_id
+      WHERE r.book_id = ?
+      ORDER BY r.created_at DESC
+    `).all(req.params.bookId);
+    const avg = db.prepare('SELECT AVG(rating) as avg, COUNT(*) as count FROM reviews WHERE book_id=?').get(req.params.bookId);
+    res.json({ reviews, avg: avg.avg ? Math.round(avg.avg*10)/10 : null, count: avg.count });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.post('/api/reviews/:bookId', requireUser, (req, res) => {
+  try {
+    const uid = req.session.user?.id;
+    if (!uid) return res.status(401).json({ error: 'Login required' });
+    const { rating, comment } = req.body;
+    if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: 'Rating must be 1-5' });
+    db.prepare('INSERT OR REPLACE INTO reviews (user_id,book_id,rating,comment) VALUES (?,?,?,?)')
+      .run(uid, req.params.bookId, parseInt(rating), (comment||'').slice(0,1000));
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.delete('/api/reviews/:bookId', requireUser, (req, res) => {
+  try {
+    const uid = req.session.user?.id;
+    db.prepare('DELETE FROM reviews WHERE user_id=? AND book_id=?').run(uid, req.params.bookId);
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: 'Server error' }); }
 });
@@ -244,13 +367,14 @@ app.post('/api/change-password', requireAdmin, (req, res) => {
 // ── BOOKS ──────────────────────────────────────────────────────────────────
 app.get('/api/books', (req, res) => {
   try {
-    const { q, genre, author_id } = req.query;
+    const { q, genre, language, author_id } = req.query;
     let sql = 'SELECT * FROM books WHERE 1=1'; const params = [];
     if (q) {
       sql += ' AND (lower(title) LIKE lower(?) OR lower(author) LIKE lower(?) OR lower(genre) LIKE lower(?))';
-      const like = '%' + q.slice(0,100) + '%'; params.push(like,like,like);
+      const like = '%'+q.slice(0,100)+'%'; params.push(like,like,like);
     }
-    if (genre) { sql += ' AND lower(genre)=lower(?)'; params.push(genre.slice(0,50)); }
+    if (genre)    { sql += ' AND lower(genre)=lower(?)';    params.push(genre.slice(0,50)); }
+    if (language) { sql += ' AND lower(language)=lower(?)'; params.push(language.slice(0,50)); }
     if (author_id) {
       const a = db.prepare('SELECT name FROM authors WHERE id=?').get(author_id);
       if (a) { sql += ' AND lower(author)=lower(?)'; params.push(a.name); }
@@ -261,17 +385,16 @@ app.get('/api/books', (req, res) => {
 
 app.post('/api/books', requireAdmin, uploadLimiter, memUpload.fields([{name:'cover',maxCount:1},{name:'pdf',maxCount:1}]), async (req, res) => {
   try {
-    const { title, author, genre, emoji, description } = req.body;
-    if (!title || !author) return res.status(400).json({ error: 'Title and author are required' });
+    const { title, author, genre, language, emoji, description } = req.body;
+    if (!title || !author) return res.status(400).json({ error: 'Title and author required' });
     const cover = await storeFile(req.files?.cover?.[0], 'image');
     const pdf   = await storeFile(req.files?.pdf?.[0],   'pdf');
     const result = db.prepare(
-      `INSERT INTO books (title,author,genre,emoji,description,cover_url,cover_public_id,pdf_name,pdf_url,pdf_public_id,is_new) VALUES (?,?,?,?,?,?,?,?,?,?,1)`
+      `INSERT INTO books (title,author,genre,language,emoji,description,cover_url,cover_public_id,pdf_name,pdf_url,pdf_public_id,is_new) VALUES (?,?,?,?,?,?,?,?,?,?,?,1)`
     ).run(
       title.slice(0,200), author.slice(0,200), (genre||'Other').slice(0,50),
-      (emoji||'📖').slice(0,10), (description||'').slice(0,1000),
-      cover.url, cover.public_id,
-      req.files?.pdf?.[0]?.originalname?.slice(0,200)||null, pdf.url, pdf.public_id
+      (language||'English').slice(0,50), (emoji||'📖').slice(0,10), (description||'').slice(0,1000),
+      cover.url, cover.public_id, req.files?.pdf?.[0]?.originalname?.slice(0,200)||null, pdf.url, pdf.public_id
     );
     res.json(db.prepare('SELECT * FROM books WHERE id=?').get(result.lastInsertRowid));
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -280,14 +403,15 @@ app.post('/api/books', requireAdmin, uploadLimiter, memUpload.fields([{name:'cov
 app.post('/api/books/bulk', requireAdmin, (req, res) => {
   try {
     const { books } = req.body;
-    if (!Array.isArray(books) || !books.length) return res.status(400).json({ error: 'No books provided' });
-    if (books.length > 200) return res.status(400).json({ error: 'Max 200 books per import' });
+    if (!Array.isArray(books)||!books.length) return res.status(400).json({ error: 'No books' });
+    if (books.length > 200) return res.status(400).json({ error: 'Max 200 per import' });
     let added = 0;
-    const stmt = db.prepare(`INSERT INTO books (title,author,genre,emoji,description,is_new) VALUES (?,?,?,?,?,1)`);
+    const stmt = db.prepare(`INSERT INTO books (title,author,genre,language,emoji,description,is_new) VALUES (?,?,?,?,?,?,1)`);
     for (const b of books) {
-      if (!b.title || !b.author) continue;
+      if (!b.title||!b.author) continue;
       stmt.run(b.title.trim().slice(0,200), b.author.trim().slice(0,200),
-        (b.genre||'Other').slice(0,50), (b.emoji||'📖').slice(0,10), (b.description||'').slice(0,1000));
+        (b.genre||'Other').slice(0,50), (b.language||'English').slice(0,50),
+        (b.emoji||'📖').slice(0,10), (b.description||'').slice(0,1000));
       added++;
     }
     res.json({ success: true, added });
@@ -298,7 +422,7 @@ app.put('/api/books/:id', requireAdmin, uploadLimiter, memUpload.fields([{name:'
   try {
     const existing = db.prepare('SELECT * FROM books WHERE id=?').get(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    const { title, author, genre, emoji, description } = req.body;
+    const { title, author, genre, language, emoji, description } = req.body;
     let { cover_url, cover_public_id, pdf_url, pdf_public_id, pdf_name } = existing;
     if (req.files?.cover?.[0]) {
       await deleteFile(existing.cover_public_id, existing.cover_url);
@@ -308,11 +432,10 @@ app.put('/api/books/:id', requireAdmin, uploadLimiter, memUpload.fields([{name:'
     if (req.files?.pdf?.[0]) {
       await deleteFile(existing.pdf_public_id, existing.pdf_url, 'image');
       const p = await storeFile(req.files.pdf[0], 'pdf');
-      pdf_url = p.url; pdf_public_id = p.public_id;
-      pdf_name = req.files.pdf[0].originalname?.slice(0,200);
+      pdf_url = p.url; pdf_public_id = p.public_id; pdf_name = req.files.pdf[0].originalname?.slice(0,200);
     }
-    db.prepare(`UPDATE books SET title=?,author=?,genre=?,emoji=?,description=?,cover_url=?,cover_public_id=?,pdf_name=?,pdf_url=?,pdf_public_id=? WHERE id=?`)
-      .run(title?.slice(0,200), author?.slice(0,200), genre?.slice(0,50),
+    db.prepare(`UPDATE books SET title=?,author=?,genre=?,language=?,emoji=?,description=?,cover_url=?,cover_public_id=?,pdf_name=?,pdf_url=?,pdf_public_id=? WHERE id=?`)
+      .run(title?.slice(0,200), author?.slice(0,200), genre?.slice(0,50), (language||'English').slice(0,50),
         (emoji||'📖').slice(0,10), (description||'').slice(0,1000),
         cover_url, cover_public_id, pdf_name, pdf_url, pdf_public_id, req.params.id);
     res.json(db.prepare('SELECT * FROM books WHERE id=?').get(req.params.id));
@@ -348,7 +471,7 @@ app.get('/api/authors/:id', (req, res) => {
 app.post('/api/authors', requireAdmin, uploadLimiter, memUpload.single('photo'), async (req, res) => {
   try {
     const { name, bio, website } = req.body;
-    if (!name) return res.status(400).json({ error: 'Name is required' });
+    if (!name) return res.status(400).json({ error: 'Name required' });
     const photo = await storeFile(req.file, 'image');
     const result = db.prepare(`INSERT INTO authors (name,bio,photo_url,photo_public_id,website) VALUES (?,?,?,?,?)`)
       .run(name.trim().slice(0,200), (bio||'').slice(0,2000), photo.url, photo.public_id, (website||'').slice(0,500));
@@ -390,24 +513,16 @@ app.get('/api/pdf/:id', (req, res) => {
     if (!book || !book.pdf_url) return res.status(404).json({ error: 'PDF not found' });
     let fetchUrl = book.pdf_url;
     if (cloudinaryReady && book.pdf_public_id) {
-      // Generate signed URL for image-type PDF
       fetchUrl = cloudinary.url(book.pdf_public_id, {
-        resource_type: 'image',
-        format: 'pdf',
-        type: 'upload',
-        sign_url: true,
-        expires_at: Math.floor(Date.now()/1000) + 3600,
+        resource_type: 'image', format: 'pdf', type: 'upload',
+        sign_url: true, expires_at: Math.floor(Date.now()/1000) + 3600,
       });
     }
     const client = fetchUrl.startsWith('https') ? https : http;
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${(book.pdf_name || book.title + '.pdf').replace(/[^a-zA-Z0-9.\-_ ]/g,'_')}"`);
+    res.setHeader('Content-Disposition', `inline; filename="${(book.pdf_name||book.title+'.pdf').replace(/[^a-zA-Z0-9.\-_ ]/g,'_')}"`);
     const request = client.get(fetchUrl, (stream) => {
-      if (stream.statusCode >= 400) {
-        console.error('PDF fetch failed:', stream.statusCode);
-        res.status(stream.statusCode).send('Could not load PDF.');
-        return;
-      }
+      if (stream.statusCode >= 400) { console.error('PDF fetch failed:', stream.statusCode); res.status(stream.statusCode).send('Could not load PDF.'); return; }
       stream.pipe(res);
     });
     request.on('error', (e) => res.status(500).send('Error fetching PDF.'));
@@ -418,6 +533,6 @@ app.get('/api/pdf/:id', (req, res) => {
 app.listen(PORT, () => {
   console.log(`\n📚 Maktaba running on port ${PORT}`);
   console.log(`👉 Local: http://localhost:${PORT}\n`);
-  if (!process.env.SESSION_SECRET) console.warn('⚠️  Set SESSION_SECRET environment variable!');
-  if (!process.env.ADMIN_PASSWORD) console.warn('⚠️  Set ADMIN_PASSWORD environment variable to change default password!');
+  if (!process.env.SESSION_SECRET) console.warn('⚠️  Set SESSION_SECRET!');
+  if (!process.env.ADMIN_PASSWORD) console.warn('⚠️  Set ADMIN_PASSWORD!');
 });

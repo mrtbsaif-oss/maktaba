@@ -15,7 +15,6 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
 
-/* NAV */
 nav{background:var(--ink);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:58px;position:sticky;top:0;z-index:300}
 .logo{font-family:'Playfair Display',serif;font-size:22px;cursor:pointer;letter-spacing:.5px}
 .logo span{color:var(--accent2);font-style:italic}
@@ -25,11 +24,10 @@ nav{background:var(--ink);color:white;display:flex;align-items:center;justify-co
 .nb.on{color:white;background:rgba(255,255,255,.15)}
 .nb.pill{background:var(--accent);color:white;border-radius:999px;display:none}
 .nb.pill:hover{background:var(--accent2)}
+.nb.userpill{background:#166534;color:white;border-radius:999px;display:none}
 
-/* PAGES */
 .page{display:none}.page.active{display:block}
 
-/* HERO */
 .hero{background:var(--ink);color:white;padding:64px 36px 52px;text-align:center;position:relative;overflow:hidden}
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(139,58,15,.3),transparent 70%);pointer-events:none}
 .hero h1{font-family:'Playfair Display',serif;font-size:52px;line-height:1.1;margin-bottom:12px;position:relative}
@@ -39,18 +37,17 @@ nav{background:var(--ink);color:white;display:flex;align-items:center;justify-co
 .search-bar input{flex:1;padding:13px 18px;border:none;border-radius:var(--r) 0 0 var(--r);font-size:15px;font-family:inherit;outline:none}
 .search-bar button{padding:13px 20px;background:var(--accent);color:white;border:none;border-radius:0 var(--r) var(--r) 0;cursor:pointer;font-size:15px;font-family:inherit;font-weight:600;transition:background .15s}
 .search-bar button:hover{background:var(--accent2)}
-.genre-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;position:relative}
+.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;position:relative;margin-bottom:10px}
 .gpill{padding:6px 16px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);background:transparent;font-family:inherit;transition:all .15s}
 .gpill:hover,.gpill.on{background:white;color:var(--ink);border-color:white}
 .gpill.fantasy.on{background:var(--fantasy2);color:white;border-color:var(--fantasy2)}
+.gpill.lang.on{background:#1B4F8A;color:white;border-color:#1B4F8A}
 
-/* LAYOUT */
 .wrap{max-width:1280px;margin:0 auto;padding:40px 36px}
 .section-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:24px}
 .section-title{font-family:'Playfair Display',serif;font-size:26px}
 .section-sub{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace}
 
-/* BOOK GRID */
 .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px}
 .book-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;position:relative}
 .book-card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
@@ -76,26 +73,29 @@ nav{background:var(--ink);color:white;display:flex;align-items:center;justify-co
 .tag-fantasy{background:#EDE9FE;color:var(--fantasy)}
 .tag-new{background:#FEF3E2;color:var(--accent)}
 .tag-pdf{background:#DBEAFE;color:var(--blue)}
-.book-actions{display:flex;gap:6px;padding:0 12px 12px 16px}
+.tag-ar{background:#FEF3E2;color:#92400e}
+.stars-display{color:#F59E0B;font-size:12px}
+.book-actions{display:flex;gap:6px;padding:0 12px 12px 16px;flex-wrap:wrap}
 .btn{padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
 .btn-read{background:var(--blue);color:white;flex:1;justify-content:center}
 .btn-read:hover{background:#163f6e}
 .btn-dl{background:var(--line);color:var(--ink);padding:8px 10px}
 .btn-dl:hover{background:#ccc8bc}
+.btn-fav{background:var(--line);color:var(--ink);padding:8px 10px}
+.btn-fav.on{background:#FEF2F2;color:#DC2626}
+.btn-fav:hover{background:#FEF2F2;color:#DC2626}
 
-/* AUTHOR CARDS */
 .authors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px}
 .author-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s}
 .author-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
-.author-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:block;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.author-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:block}
 .author-avatar-placeholder{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px;color:white}
 .author-name{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:4px}
 .author-book-count{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
 
-/* AUTHOR PAGE */
 .author-hero{background:var(--ink);color:white;padding:48px 36px}
 .author-hero-inner{max-width:800px;margin:0 auto;display:flex;gap:32px;align-items:flex-start}
-.author-photo{width:140px;height:140px;border-radius:12px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.author-photo{width:140px;height:140px;border-radius:12px;object-fit:cover;flex-shrink:0}
 .author-photo-placeholder{width:140px;height:140px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:56px}
 .author-info h1{font-family:'Playfair Display',serif;font-size:36px;margin-bottom:8px}
 .author-bio{font-size:15px;color:rgba(255,255,255,.7);line-height:1.7;margin-top:10px}
@@ -105,6 +105,39 @@ nav{background:var(--ink);color:white;display:flex;align-items:center;justify-co
 .back-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);cursor:pointer;padding:8px 14px;border-radius:6px;font-size:13px;font-family:inherit;margin-bottom:20px;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
 .back-btn:hover{background:rgba(255,255,255,.2);color:white}
 
+/* REVIEWS */
+.reviews-section{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;margin-top:28px}
+.reviews-section h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px}
+.review-form{background:var(--paper);border-radius:var(--r);padding:16px;margin-bottom:20px}
+.star-picker{display:flex;gap:4px;margin-bottom:10px}
+.star-picker span{font-size:24px;cursor:pointer;transition:transform .1s;user-select:none}
+.star-picker span:hover{transform:scale(1.2)}
+.review-item{padding:14px 0;border-bottom:1px solid var(--line)}
+.review-item:last-child{border-bottom:none}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.reviewer-name{font-weight:600;font-size:14px}
+.review-date{font-size:11px;color:var(--muted)}
+.review-text{font-size:14px;color:var(--muted);line-height:1.6;margin-top:6px}
+.avg-rating{display:flex;align-items:center;gap:10px;padding:12px 0;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.avg-big{font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent)}
+
+/* USER PROFILE */
+.profile-wrap{max-width:900px;margin:0 auto;padding:40px 36px}
+.profile-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.ptab{padding:10px 18px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px;font-weight:500;border:none;background:none;font-family:inherit;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
+.ptab.on{color:var(--accent);border-bottom-color:var(--accent);background:#FEF3E2}
+.ppanel{display:none}.ppanel.on{display:block}
+.progress-section{display:flex;flex-direction:column;gap:10px}
+.progress-item{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px}
+.progress-emoji{font-size:28px}
+.progress-info{flex:1}
+.progress-title{font-weight:600;font-size:14px}
+.progress-author{font-size:12px;color:var(--muted)}
+.status-badge{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600}
+.status-reading{background:#DBEAFE;color:#1E40AF}
+.status-finished{background:#D1FAE5;color:#065F46}
+.status-want{background:#FEF3C7;color:#92400E}
+
 /* READER */
 .reader-overlay{display:none;position:fixed;inset:0;z-index:500;background:#111;flex-direction:column}
 .reader-overlay.open{display:flex}
@@ -113,10 +146,15 @@ nav{background:var(--ink);color:white;display:flex;align-items:center;justify-co
 .reader-close{background:none;border:none;color:white;font-size:22px;cursor:pointer;opacity:.7;padding:4px 8px}
 .reader-close:hover{opacity:1}
 .reader-frame{flex:1;width:100%;border:none}
+.progress-btns{display:flex;gap:6px}
+.pbtn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.pbtn-reading{background:#DBEAFE;color:#1E40AF}
+.pbtn-finished{background:#D1FAE5;color:#065F46}
+.pbtn-want{background:#FEF3C7;color:#92400E}
 
 /* ADMIN */
 .admin-wrap{max-width:960px;margin:0 auto;padding:36px}
-.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:28px;padding-bottom:0}
+.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:28px}
 .atab{padding:10px 18px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px;font-weight:500;border:none;background:none;font-family:inherit;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
 .atab.on{color:var(--accent);border-bottom-color:var(--accent);background:#FEF3E2}
 .admin-panel{display:none}.admin-panel.on{display:block}
@@ -150,30 +188,30 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .msg{padding:11px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
 .msg-ok{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
 .msg-err{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
-
-/* BULK IMPORT */
 .bulk-area{width:100%;min-height:180px;padding:12px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;background:white;outline:none;resize:vertical;line-height:1.6}
 .bulk-area:focus{border-color:var(--accent)}
-.bulk-preview{margin-top:14px}
 .bulk-row{display:flex;gap:8px;align-items:center;padding:8px 10px;background:white;border:1px solid var(--line);border-radius:6px;margin-bottom:6px;font-size:13px}
 .bulk-row-num{font-family:'JetBrains Mono',monospace;color:var(--muted);width:22px;flex-shrink:0}
-.bulk-row-info{flex:1}
 .bulk-row-err{color:#D94F3D;font-size:12px}
 
-/* LOGIN */
+/* AUTH MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:var(--r);padding:32px;width:100%;max-width:420px;position:relative}
+.modal h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:20px;text-align:center}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted)}
+.modal-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.mtab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:14px;font-weight:500;border:none;background:none;font-family:inherit;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
+.mtab.on{color:var(--accent);border-bottom-color:var(--accent)}
+
 .login-wrap{max-width:400px;margin:80px auto;padding:0 20px}
 .login-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:32px}
 .login-card h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:22px;text-align:center}
 
-/* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:white;padding:11px 22px;border-radius:999px;font-size:13px;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
-
-/* EMPTY */
 .empty{text-align:center;padding:64px 20px;color:var(--muted);grid-column:1/-1}
 .empty .ico{font-size:56px;display:block;margin-bottom:14px}
-
-/* SPINNER */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .6s linear infinite;margin-right:5px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
@@ -182,6 +220,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   .wrap{padding:24px 14px}.books-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
   .admin-wrap{padding:18px 14px}.frow,.frow3{grid-template-columns:1fr}
   .author-hero-inner{flex-direction:column;align-items:center;text-align:center}
+  .profile-wrap{padding:24px 14px}
 }
 </style>
 </head>
@@ -192,7 +231,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   <div class="nav-links">
     <button class="nb on" id="nb-library" onclick="nav('library')">Library</button>
     <button class="nb" id="nb-authors" onclick="nav('authors')">Authors</button>
-    <button class="nb" id="nb-account" onclick="nav('account')">Sign In</button>
+    <button class="nb userpill" id="nb-profile" onclick="nav('profile')">👤 <span id="nav-username"></span></button>
+    <button class="nb" id="nb-account" onclick="openAuthModal()">Sign In</button>
     <button class="nb pill" id="nb-admin" onclick="nav('admin')">⚙ Admin</button>
   </div>
 </nav>
@@ -207,17 +247,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       <input id="search" placeholder="Search title, author, genre…" oninput="doSearch()"/>
       <button onclick="doSearch()">Search</button>
     </div>
-    <div class="genre-pills">
+    <div class="filter-row">
       <button class="gpill on" data-genre="" onclick="setGenre(this,'')">All</button>
       <button class="gpill" data-genre="Fiction" onclick="setGenre(this,'Fiction')">Fiction</button>
       <button class="gpill fantasy" data-genre="Fantasy" onclick="setGenre(this,'Fantasy')">✨ Fantasy</button>
       <button class="gpill" data-genre="Science" onclick="setGenre(this,'Science')">Science</button>
       <button class="gpill" data-genre="History" onclick="setGenre(this,'History')">History</button>
       <button class="gpill" data-genre="Philosophy" onclick="setGenre(this,'Philosophy')">Philosophy</button>
+      <button class="gpill" data-genre="Literature" onclick="setGenre(this,'Literature')">Literature</button>
       <button class="gpill" data-genre="Non-fiction" onclick="setGenre(this,'Non-fiction')">Non-fiction</button>
       <button class="gpill" data-genre="Technology" onclick="setGenre(this,'Technology')">Technology</button>
       <button class="gpill" data-genre="Religion" onclick="setGenre(this,'Religion')">Religion</button>
-      <button class="gpill" data-genre="Literature" onclick="setGenre(this,'Literature')">Literature</button>
+    </div>
+    <div class="filter-row" style="margin-top:6px">
+      <button class="gpill lang on" data-lang="" onclick="setLang(this,'')">🌐 All Languages</button>
+      <button class="gpill lang" data-lang="English" onclick="setLang(this,'English')">🇬🇧 English</button>
+      <button class="gpill lang" data-lang="Arabic" onclick="setLang(this,'Arabic')">🇸🇦 Arabic</button>
     </div>
   </div>
   <div class="wrap">
@@ -229,7 +274,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   </div>
 </div>
 
-<!-- AUTHORS LIST -->
+<!-- AUTHORS -->
 <div class="page" id="page-authors">
   <div class="wrap">
     <div class="section-hd" style="margin-top:8px">
@@ -256,23 +301,36 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     </div>
   </div>
   <div class="wrap">
-    <div class="section-hd">
-      <span class="section-title" id="author-books-title">Books</span>
-    </div>
+    <div class="section-hd"><span class="section-title" id="author-books-title">Books</span></div>
     <div class="books-grid" id="author-books-grid"></div>
   </div>
 </div>
 
-<!-- ACCOUNT -->
-<div class="page" id="page-account">
-  <div class="login-wrap">
-    <div class="login-card">
-      <h2>Admin Sign In</h2>
-      <div id="login-msg"></div>
-      <div class="fg"><label>Email</label><input id="l-email" type="email" placeholder="admin@library.com"/></div>
-      <div class="fg"><label>Password</label><input id="l-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <button class="btn btn-save" style="width:100%;margin-top:6px;justify-content:center" onclick="doLogin()" id="login-btn">Sign In</button>
-      <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--muted)">Default: admin@library.com / admin123</p>
+<!-- BOOK DETAIL -->
+<div class="page" id="page-book">
+  <div class="wrap" style="max-width:800px">
+    <button class="back-btn" style="background:var(--line);color:var(--ink);margin-bottom:20px" onclick="nav('library')">← Back to Library</button>
+    <div id="book-detail-content"></div>
+    <div class="reviews-section" id="reviews-section"></div>
+  </div>
+</div>
+
+<!-- USER PROFILE -->
+<div class="page" id="page-profile">
+  <div class="profile-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <h2 style="font-family:'Playfair Display',serif;font-size:28px" id="profile-name"></h2>
+      <button class="btn btn-ghost" onclick="doLogout()">Sign out</button>
+    </div>
+    <div class="profile-tabs">
+      <button class="ptab on" onclick="ptab('favorites')">❤️ Favorites</button>
+      <button class="ptab" onclick="ptab('progress')">📖 Reading List</button>
+    </div>
+    <div class="ppanel on" id="pp-favorites">
+      <div class="books-grid" id="fav-grid"></div>
+    </div>
+    <div class="ppanel" id="pp-progress">
+      <div class="progress-section" id="progress-list"></div>
     </div>
   </div>
 </div>
@@ -285,9 +343,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       <button class="atab on" onclick="atab('books')">📚 Books</button>
       <button class="atab" onclick="atab('bulk')">⚡ Bulk Import</button>
       <button class="atab" onclick="atab('authors')">✍️ Authors</button>
+      <button class="atab" onclick="atab('users')">👥 Users</button>
+      <button class="atab" onclick="atab('settings')">🔐 Settings</button>
     </div>
 
-    <!-- BOOKS PANEL -->
+    <!-- BOOKS -->
     <div class="admin-panel on" id="ap-books">
       <div class="card">
         <h3 id="book-form-title">Add New Book</h3>
@@ -304,25 +364,26 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
               <option>Technology</option><option>Religion</option><option>Literature</option><option>Other</option>
             </select>
           </div>
-          <div class="fg"><label>Emoji (fallback cover)</label><input id="b-emoji" placeholder="📖" maxlength="4"/></div>
-          <div class="fg"><label>Description</label><input id="b-desc" placeholder="Short summary…"/></div>
+          <div class="fg"><label>Language</label>
+            <select id="b-language"><option>English</option><option>Arabic</option></select>
+          </div>
+          <div class="fg"><label>Emoji</label><input id="b-emoji" placeholder="📖" maxlength="4"/></div>
         </div>
+        <div class="fg"><label>Description</label><textarea id="b-desc" rows="2" placeholder="Short summary…"></textarea></div>
         <div class="frow">
           <div class="fg">
-            <label>Book Cover Image</label>
+            <label>Cover Image</label>
             <div class="drop" id="cover-drop" ondragover="dv(event,'cover-drop')" ondragleave="dl('cover-drop')" ondrop="df(event,'cover-drop','b-cover')">
-              <input type="file" accept="image/*" id="b-cover" onchange="fc(this,'cover-chosen')"/>
-              <span class="drop-ico">🖼️</span>
-              <div class="drop-txt">Drop image or <strong>click to browse</strong></div>
+              <input type="file" accept="image/*" id="b-cover" onchange="fc(this,'cover-chosen','cover')"/>
+              <span class="drop-ico">🖼️</span><div class="drop-txt">Drop image or <strong>click</strong></div>
               <div class="chosen" id="cover-chosen"></div>
             </div>
           </div>
           <div class="fg">
             <label>PDF File</label>
             <div class="drop" id="pdf-drop" ondragover="dv(event,'pdf-drop')" ondragleave="dl('pdf-drop')" ondrop="df(event,'pdf-drop','b-pdf')">
-              <input type="file" accept=".pdf" id="b-pdf" onchange="fc(this,'pdf-chosen')"/>
-              <span class="drop-ico">📄</span>
-              <div class="drop-txt">Drop PDF or <strong>click to browse</strong></div>
+              <input type="file" accept=".pdf" id="b-pdf" onchange="fc(this,'pdf-chosen','pdf')"/>
+              <span class="drop-ico">📄</span><div class="drop-txt">Drop PDF or <strong>click</strong></div>
               <div class="chosen" id="pdf-chosen"></div>
             </div>
           </div>
@@ -334,35 +395,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       </div>
       <div class="card">
         <h3>All Books</h3>
-        <table class="tbl"><thead><tr><th>Cover</th><th>Title</th><th>Author</th><th>Genre</th><th>Files</th><th>Actions</th></tr></thead>
+        <table class="tbl"><thead><tr><th>Cover</th><th>Title</th><th>Author</th><th>Genre</th><th>Lang</th><th>Files</th><th>Actions</th></tr></thead>
         <tbody id="admin-books-body"></tbody></table>
       </div>
-      <div class="card" style="max-width:420px">
-      <h3>🔐 Change Password</h3>
-      <div id="pw-msg"></div>
-      <div class="fg"><label>Current Password</label><input type="password" id="pw-current" placeholder="Current password"/></div>
-      <div class="fg"><label>New Password</label><input type="password" id="pw-new" placeholder="Min 8 characters"/></div>
-      <div class="fg"><label>Confirm New Password</label><input type="password" id="pw-confirm" placeholder="Repeat new password"/></div>
-      <div style="display:flex;gap:10px;margin-top:6px">
-        <button class="btn btn-save" onclick="changePassword()">Update Password</button>
-        <button class="btn btn-ghost" onclick="doLogout()">Sign out</button>
-      </div>
-    </div>
     </div>
 
-    <!-- BULK PANEL -->
+    <!-- BULK -->
     <div class="admin-panel" id="ap-bulk">
       <div class="card">
         <h3>⚡ Bulk Import Books</h3>
         <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">
-          Paste one book per line. Format:<br/>
-          <code style="background:#f0ede6;padding:2px 6px;border-radius:4px;font-size:12px">Title | Author | Genre | Description</code><br/>
-          Genre and description are optional. Example:<br/>
-          <code style="background:#f0ede6;padding:2px 6px;border-radius:4px;font-size:12px">Dune | Frank Herbert | Fantasy | Epic sci-fi saga</code>
+          One book per line:<br/>
+          <code style="background:#f0ede6;padding:2px 6px;border-radius:4px;font-size:12px">Title | Author | Genre | Language | Description</code><br/>
+          Example: <code style="background:#f0ede6;padding:2px 6px;border-radius:4px;font-size:12px">Dune | Frank Herbert | Fantasy | English | Epic sci-fi saga</code>
         </p>
         <div id="bulk-msg"></div>
-        <textarea class="bulk-area" id="bulk-text" placeholder="Dune | Frank Herbert | Fantasy | Epic sci-fi saga&#10;1984 | George Orwell | Fiction | Dystopian classic&#10;Sapiens | Yuval Noah Harari | History" oninput="previewBulk()"></textarea>
-        <div class="bulk-preview" id="bulk-preview"></div>
+        <textarea class="bulk-area" id="bulk-text" placeholder="Dune | Frank Herbert | Fantasy | English | Epic sci-fi&#10;الأمير الصغير | أنطوان دو سانت إكزوبيري | Fiction | Arabic" oninput="previewBulk()"></textarea>
+        <div id="bulk-preview"></div>
         <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
           <button class="btn btn-save" onclick="doBulkImport()" id="bulk-btn">Import Books</button>
           <button class="btn btn-ghost" onclick="document.getElementById('bulk-text').value='';document.getElementById('bulk-preview').innerHTML=''">Clear</button>
@@ -371,22 +420,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       </div>
     </div>
 
-    <!-- AUTHORS PANEL -->
+    <!-- AUTHORS -->
     <div class="admin-panel" id="ap-authors">
       <div class="card">
         <h3 id="author-form-title">Add New Author</h3>
         <div id="author-msg"></div>
         <div class="frow">
-          <div class="fg"><label>Full Name</label><input id="a-name" placeholder="Author's full name"/></div>
-          <div class="fg"><label>Website (optional)</label><input id="a-website" type="url" placeholder="https://…"/></div>
+          <div class="fg"><label>Full Name</label><input id="a-name" placeholder="Author name"/></div>
+          <div class="fg"><label>Website</label><input id="a-website" type="url" placeholder="https://…"/></div>
         </div>
-        <div class="fg"><label>Bio</label><textarea id="a-bio" rows="3" placeholder="A few sentences about the author…"></textarea></div>
+        <div class="fg"><label>Bio</label><textarea id="a-bio" rows="3" placeholder="About the author…"></textarea></div>
         <div class="fg">
           <label>Author Photo</label>
           <div class="drop" id="photo-drop" ondragover="dv(event,'photo-drop')" ondragleave="dl('photo-drop')" ondrop="df(event,'photo-drop','a-photo')">
-            <input type="file" accept="image/*" id="a-photo" onchange="fc(this,'photo-chosen')"/>
-            <span class="drop-ico">👤</span>
-            <div class="drop-txt">Drop photo or <strong>click to browse</strong></div>
+            <input type="file" accept="image/*" id="a-photo" onchange="fc(this,'photo-chosen','photo')"/>
+            <span class="drop-ico">👤</span><div class="drop-txt">Drop photo or <strong>click</strong></div>
             <div class="chosen" id="photo-chosen"></div>
           </div>
         </div>
@@ -401,6 +449,57 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
         <tbody id="admin-authors-body"></tbody></table>
       </div>
     </div>
+
+    <!-- USERS -->
+    <div class="admin-panel" id="ap-users">
+      <div class="card">
+        <h3>Registered Users</h3>
+        <table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Favorites</th><th>Reviews</th><th>Joined</th><th>Action</th></tr></thead>
+        <tbody id="admin-users-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="admin-panel" id="ap-settings">
+      <div class="card" style="max-width:420px">
+        <h3>🔐 Change Password</h3>
+        <div id="pw-msg"></div>
+        <div class="fg"><label>Current Password</label><input type="password" id="pw-current" placeholder="Current password"/></div>
+        <div class="fg"><label>New Password</label><input type="password" id="pw-new" placeholder="Min 8 characters"/></div>
+        <div class="fg"><label>Confirm New Password</label><input type="password" id="pw-confirm" placeholder="Repeat new password"/></div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-save" onclick="changePassword()">Update Password</button>
+          <button class="btn btn-ghost" onclick="doLogout()">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuthModal()">×</button>
+    <h2>Welcome to Maktaba</h2>
+    <div class="modal-tabs">
+      <button class="mtab on" id="mt-login" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="mtab" id="mt-register" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <div id="auth-msg"></div>
+    <!-- LOGIN -->
+    <div id="auth-login">
+      <div class="fg"><label>Email</label><input id="l-email" type="email" placeholder="you@example.com"/></div>
+      <div class="fg"><label>Password</label><input id="l-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn btn-save" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()" id="login-btn">Sign In</button>
+      <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted)">Admin? Use admin@library.com</p>
+    </div>
+    <!-- REGISTER -->
+    <div id="auth-register" style="display:none">
+      <div class="fg"><label>Full Name</label><input id="r-name" placeholder="Your name"/></div>
+      <div class="fg"><label>Email</label><input id="r-email" type="email" placeholder="you@example.com"/></div>
+      <div class="fg"><label>Password</label><input id="r-pass" type="password" placeholder="Min 6 characters"/></div>
+      <button class="btn btn-save" style="width:100%;justify-content:center;margin-top:4px" onclick="doRegister()" id="reg-btn">Create Account</button>
+    </div>
   </div>
 </div>
 
@@ -408,6 +507,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 <div class="reader-overlay" id="reader">
   <div class="reader-bar">
     <span class="reader-title" id="reader-title">Reading…</span>
+    <div class="progress-btns" id="reader-progress-btns"></div>
     <button class="btn btn-read" style="flex:none;padding:6px 12px;font-size:12px" onclick="dlFromReader()">⬇ Download</button>
     <button class="reader-close" onclick="closeReader()">✕</button>
   </div>
@@ -418,15 +518,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────────────────
-let allBooks=[], allAuthors=[], currentAdmin=null;
+let allBooks=[], allAuthors=[], currentUser=null;
 let editBookId=null, editAuthorId=null, readerBook=null;
 let coverFile=null, pdfFile=null, photoFile=null;
-let activeGenre='';
+let activeGenre='', activeLang='';
+let userFavorites=new Set(), userProgress={};
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 async function init(){
   const me = await api('GET','/api/me');
-  if(me.admin) setAdmin(me.admin);
+  if(me.role==='admin') setAdmin(me);
+  else if(me.role==='user') setUser(me);
   await loadBooks();
 }
 
@@ -435,8 +537,10 @@ async function api(method,url,body){
   const opts={method,credentials:'include'};
   if(body&&!(body instanceof FormData)){opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify(body);}
   else if(body instanceof FormData) opts.body=body;
-  const r=await fetch(url,opts);
-  return r.json();
+  try {
+    const r=await fetch(url,opts);
+    return r.json();
+  } catch(e){ return {error:'Network error'}; }
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────
@@ -449,26 +553,37 @@ function nav(page){
   if(page==='library') renderBooks(allBooks);
   if(page==='authors') loadAuthors();
   if(page==='admin') renderAdminBooks();
+  if(page==='profile') loadProfile();
 }
 
 // ── BOOKS ─────────────────────────────────────────────────────────────────
 async function loadBooks(){
-  allBooks = await api('GET','/api/books');
+  allBooks=await api('GET','/api/books');
   renderBooks(allBooks);
 }
 
 async function doSearch(){
   const q=document.getElementById('search').value.trim();
-  const url='/api/books'+(q?'?q='+encodeURIComponent(q):'')+(activeGenre?'&genre='+encodeURIComponent(activeGenre):'');
+  let url='/api/books?';
+  if(q) url+='q='+encodeURIComponent(q)+'&';
+  if(activeGenre) url+='genre='+encodeURIComponent(activeGenre)+'&';
+  if(activeLang) url+='language='+encodeURIComponent(activeLang)+'&';
   const books=await api('GET',url);
   renderBooks(books);
 }
 
 async function setGenre(el,genre){
   activeGenre=genre;
-  document.querySelectorAll('.gpill').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.gpill[data-genre]').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');
-  document.getElementById('lib-title').textContent = genre ? genre+' Books' : 'All Books';
+  document.getElementById('lib-title').textContent=genre?genre+' Books':'All Books';
+  await doSearch();
+}
+
+async function setLang(el,lang){
+  activeLang=lang;
+  document.querySelectorAll('.gpill[data-lang]').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
   await doSearch();
 }
 
@@ -480,10 +595,8 @@ function spineClass(genre){
   if(g==='history'||g==='philosophy'||g==='non-fiction'||g==='religion') return 'spine-history';
   return 'spine-other';
 }
-
-function tagClass(genre){
-  return genre==='Fantasy'?'tag-fantasy':'tag-genre';
-}
+function tagClass(genre){ return genre==='Fantasy'?'tag-fantasy':'tag-genre'; }
+function starsHtml(rating){ if(!rating) return ''; return '⭐'.repeat(Math.round(rating))+` <span style="font-size:11px;color:var(--muted)">(${rating})</span>`; }
 
 function renderBooks(books){
   document.getElementById('lib-count').textContent=books.length+' book'+(books.length!==1?'s':'');
@@ -492,17 +605,16 @@ function renderBooks(books){
   grid.innerHTML=books.map(b=>`
     <div class="book-card">
       <div class="${spineClass(b.genre)} book-spine"></div>
-      <div class="book-cover" onclick="openBook(${b.id})" style="cursor:pointer">
-        ${b.cover_url
-          ? `<img src="${b.cover_url}" alt="${b.title}"/>`
-          : `<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div><div class="book-cover-author">${b.author}</div></div>`
-        }
+      <div class="book-cover" onclick="openBookDetail(${b.id})" style="cursor:pointer">
+        ${b.cover_url?`<img src="${b.cover_url}" alt="${esc(b.title)}"/>`
+          :`<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div><div class="book-cover-author">${b.author}</div></div>`}
       </div>
       <div class="book-body">
         <div class="book-title">${b.title}</div>
-        <div class="book-author" onclick="openAuthorByName('${escHtml(b.author)}')">${b.author}</div>
+        <div class="book-author" onclick="openAuthorByName('${esc(b.author)}')">${b.author}</div>
         <div class="book-tags">
           <span class="tag ${tagClass(b.genre)}">${b.genre}</span>
+          ${b.language==='Arabic'?'<span class="tag tag-ar">عربي</span>':''}
           ${b.is_new?'<span class="tag tag-new">New</span>':''}
           ${b.pdf_url?'<span class="tag tag-pdf">PDF</span>':''}
         </div>
@@ -510,20 +622,130 @@ function renderBooks(books){
       <div class="book-actions">
         <button class="btn btn-read" onclick="openBook(${b.id})">📖 Read</button>
         ${b.pdf_url?`<button class="btn btn-dl" onclick="dlBook(${b.id})">⬇</button>`:''}
+        <button class="btn btn-fav ${userFavorites.has(b.id)?'on':''}" id="fav-${b.id}" onclick="toggleFav(${b.id})">♥</button>
       </div>
     </div>
   `).join('');
 }
 
-function escHtml(s){ return (s||'').replace(/'/g,"\\'"); }
+function esc(s){ return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 
-function openBook(id){
+// ── BOOK DETAIL + REVIEWS ─────────────────────────────────────────────────
+async function openBookDetail(id){
   const b=allBooks.find(x=>x.id===id);
   if(!b) return;
+  const rev=await api('GET','/api/reviews/'+id);
+
+  document.getElementById('book-detail-content').innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px">
+      <div style="width:160px;flex-shrink:0">
+        ${b.cover_url?`<img src="${b.cover_url}" style="width:160px;border-radius:8px;box-shadow:var(--sh)"/>`
+          :`<div style="width:160px;height:220px;border-radius:8px;background:linear-gradient(145deg,#2C1810,#5C3317);display:flex;align-items:center;justify-content:center;font-size:56px">${b.emoji||'📖'}</div>`}
+      </div>
+      <div style="flex:1;min-width:200px">
+        <h1 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:8px">${b.title}</h1>
+        <p style="font-size:16px;color:var(--muted);margin-bottom:12px;cursor:pointer" onclick="openAuthorByName('${esc(b.author)}')">${b.author}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <span class="tag ${tagClass(b.genre)}" style="font-size:13px;padding:4px 12px">${b.genre}</span>
+          ${b.language==='Arabic'?'<span class="tag tag-ar" style="font-size:13px;padding:4px 12px">عربي</span>':''}
+        </div>
+        ${rev.avg?`<div style="margin-bottom:12px"><span style="color:#F59E0B;font-size:18px">${'⭐'.repeat(Math.round(rev.avg))}</span> <span style="font-size:14px;color:var(--muted)">${rev.avg}/5 (${rev.count} review${rev.count!==1?'s':''})</span></div>`:''}
+        <p style="font-size:15px;line-height:1.7;color:var(--muted);margin-bottom:20px">${b.description||'No description available.'}</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          ${b.pdf_url?`<button class="btn btn-read" onclick="openBook(${b.id})">📖 Read Online</button>`:''}
+          ${b.pdf_url?`<button class="btn btn-dl" onclick="dlBook(${b.id})">⬇ Download PDF</button>`:''}
+          <button class="btn btn-fav ${userFavorites.has(b.id)?'on':''}" id="fav-detail-${b.id}" onclick="toggleFav(${b.id},true)">♥ ${userFavorites.has(b.id)?'Saved':'Save'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Reviews section
+  const canReview = currentUser && currentUser.role==='user';
+  const myReview = rev.reviews.find(r=>currentUser&&r.user_id===currentUser.id);
+  document.getElementById('reviews-section').innerHTML=`
+    <h3>Reviews & Ratings</h3>
+    ${rev.avg?`<div class="avg-rating"><span class="avg-big">${rev.avg}</span><div><div style="color:#F59E0B;font-size:22px">${'⭐'.repeat(Math.round(rev.avg))}</div><div style="font-size:13px;color:var(--muted)">${rev.count} review${rev.count!==1?'s':''}</div></div></div>`:''}
+    ${canReview?`
+      <div class="review-form">
+        <p style="font-size:13px;font-weight:600;margin-bottom:8px">${myReview?'Edit your review':'Write a review'}</p>
+        <div class="star-picker" id="star-picker">
+          ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${id},${i})" id="star-${id}-${i}" style="opacity:${myReview&&myReview.rating>=i?1:.3}">${i<=( myReview?.rating||0)?'⭐':'☆'}</span>`).join('')}
+        </div>
+        <textarea id="review-text-${id}" rows="3" placeholder="Share your thoughts…" style="width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:14px;outline:none;resize:vertical">${myReview?.comment||''}</textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-save" style="font-size:12px;padding:7px 14px" onclick="submitReview(${id})">Submit</button>
+          ${myReview?`<button class="btn btn-danger" style="font-size:12px;padding:7px 14px" onclick="deleteReview(${id})">Delete</button>`:''}
+        </div>
+        <div id="review-msg-${id}"></div>
+      </div>
+    `:(!currentUser?`<p style="font-size:13px;color:var(--muted);margin-bottom:16px"><a href="#" onclick="openAuthModal()" style="color:var(--accent)">Sign in</a> to write a review.</p>`:'')}
+    ${rev.reviews.length===0?'<p style="color:var(--muted);font-size:14px">No reviews yet. Be the first!</p>'
+      :rev.reviews.map(r=>`
+        <div class="review-item">
+          <div class="review-header">
+            <div>
+              <span class="reviewer-name">${r.user_name}</span>
+              <span style="color:#F59E0B;margin-left:8px">${'⭐'.repeat(r.rating)}</span>
+            </div>
+            <span class="review-date">${r.created_at?.split(' ')[0]||''}</span>
+          </div>
+          ${r.comment?`<p class="review-text">${r.comment}</p>`:''}
+        </div>
+      `).join('')}
+  `;
+
+  // Store rating selection
+  window._selectedRating = myReview?.rating || 0;
+  window._currentBookId = id;
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-book').classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+}
+
+let _selectedRating = 0;
+function setRating(bookId, rating){
+  _selectedRating = rating;
+  for(let i=1;i<=5;i++){
+    const s=document.getElementById(`star-${bookId}-${i}`);
+    if(s){ s.textContent=i<=rating?'⭐':'☆'; s.style.opacity=i<=rating?1:.3; }
+  }
+}
+
+async function submitReview(bookId){
+  if(!_selectedRating){ toast('Please select a star rating.'); return; }
+  const comment=document.getElementById('review-text-'+bookId)?.value||'';
+  const res=await api('POST','/api/reviews/'+bookId,{rating:_selectedRating,comment});
+  if(res.error){ toast('Error: '+res.error); return; }
+  toast('Review saved!');
+  openBookDetail(bookId);
+}
+
+async function deleteReview(bookId){
+  if(!confirm('Delete your review?')) return;
+  await api('DELETE','/api/reviews/'+bookId);
+  toast('Review deleted.');
+  openBookDetail(bookId);
+}
+
+// ── READER ────────────────────────────────────────────────────────────────
+function openBook(id){
+  const b=allBooks.find(x=>x.id===id);
+  if(!b){return;}
   if(!b.pdf_url){toast('No PDF uploaded yet.');return;}
   readerBook=b;
   document.getElementById('reader-title').textContent=`${b.title} — ${b.author}`;
   document.getElementById('reader-frame').src='/api/pdf/'+b.id;
+  // Progress buttons if logged in user
+  const pb=document.getElementById('reader-progress-btns');
+  if(currentUser&&currentUser.role==='user'){
+    pb.innerHTML=`
+      <button class="pbtn pbtn-reading" onclick="setProgress(${b.id},'reading')">📖 Reading</button>
+      <button class="pbtn pbtn-finished" onclick="setProgress(${b.id},'finished')">✅ Finished</button>
+      <button class="pbtn pbtn-want" onclick="setProgress(${b.id},'want')">🔖 Want</button>
+    `;
+  } else pb.innerHTML='';
   document.getElementById('reader').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -536,11 +758,88 @@ function dlFromReader(){if(readerBook) dlBook(readerBook.id);}
 function dlBook(id){
   const b=allBooks.find(x=>x.id===id);
   if(!b||!b.pdf_url){toast('No PDF available.');return;}
-  const a=document.createElement('a');
-  a.href='/api/pdf/'+b.id;
-  a.download=b.pdf_name||b.title+'.pdf';
-  a.click();
+  const a=document.createElement('a');a.href='/api/pdf/'+b.id;a.download=(b.pdf_name||b.title+'.pdf');a.click();
   toast('Downloading: '+b.title);
+}
+
+// ── FAVORITES ─────────────────────────────────────────────────────────────
+async function loadFavorites(){
+  if(!currentUser||currentUser.role!=='user') return;
+  const favs=await api('GET','/api/favorites');
+  userFavorites=new Set(favs.map(b=>b.id));
+}
+
+async function toggleFav(bookId, fromDetail=false){
+  if(!currentUser||currentUser.role!=='user'){openAuthModal();return;}
+  const res=await api('POST','/api/favorites/'+bookId);
+  if(res.error){toast('Error: '+res.error);return;}
+  if(res.favorited) userFavorites.add(bookId); else userFavorites.delete(bookId);
+  // Update button in grid
+  const btn=document.getElementById('fav-'+bookId);
+  if(btn) btn.classList.toggle('on',res.favorited);
+  // Update button in detail
+  const btn2=document.getElementById('fav-detail-'+bookId);
+  if(btn2){btn2.classList.toggle('on',res.favorited);btn2.textContent='♥ '+(res.favorited?'Saved':'Save');}
+  toast(res.favorited?'Added to favorites!':'Removed from favorites.');
+}
+
+// ── READING PROGRESS ───────────────────────────────────────────────────────
+async function setProgress(bookId, status){
+  if(!currentUser||currentUser.role!=='user') return;
+  await api('POST','/api/progress/'+bookId,{status});
+  userProgress[bookId]=status;
+  toast('Marked as '+status+'!');
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────────────
+async function loadProfile(){
+  if(!currentUser) return;
+  document.getElementById('profile-name').textContent=currentUser.name||currentUser.email;
+  // Favorites
+  const favs=await api('GET','/api/favorites');
+  const fg=document.getElementById('fav-grid');
+  if(!favs.length) fg.innerHTML=`<div class="empty"><span class="ico">❤️</span><p>No favorites yet. Click ♥ on any book!</p></div>`;
+  else fg.innerHTML=favs.map(b=>bookCardHtml(b)).join('');
+  // Progress
+  const prog=await api('GET','/api/progress');
+  const pl=document.getElementById('progress-list');
+  if(!prog.length) pl.innerHTML=`<div class="empty" style="grid-column:auto"><span class="ico">📚</span><p>No books tracked yet. Use the reading buttons while reading!</p></div>`;
+  else pl.innerHTML=prog.map(b=>`
+    <div class="progress-item">
+      <div class="progress-emoji">${b.emoji||'📖'}</div>
+      <div class="progress-info">
+        <div class="progress-title">${b.title}</div>
+        <div class="progress-author">${b.author}</div>
+      </div>
+      <span class="status-badge status-${b.status}">${b.status==='reading'?'📖 Reading':b.status==='finished'?'✅ Finished':'🔖 Want to read'}</span>
+    </div>
+  `).join('');
+}
+
+function ptab(name){
+  document.querySelectorAll('.ptab').forEach((t,i)=>t.classList.toggle('on',['favorites','progress'][i]===name));
+  document.querySelectorAll('.ppanel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pp-'+name).classList.add('on');
+}
+
+function bookCardHtml(b){
+  return `
+    <div class="book-card">
+      <div class="${spineClass(b.genre)} book-spine"></div>
+      <div class="book-cover" onclick="openBookDetail(${b.id})" style="cursor:pointer">
+        ${b.cover_url?`<img src="${b.cover_url}" alt="${esc(b.title)}"/>`
+          :`<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div></div>`}
+      </div>
+      <div class="book-body">
+        <div class="book-title">${b.title}</div>
+        <div class="book-author">${b.author}</div>
+      </div>
+      <div class="book-actions">
+        ${b.pdf_url?`<button class="btn btn-read" onclick="openBook(${b.id})">📖 Read</button>`:'<span style="font-size:12px;color:var(--muted);padding:8px">No PDF</span>'}
+        <button class="btn btn-fav on" onclick="toggleFav(${b.id})">♥</button>
+      </div>
+    </div>
+  `;
 }
 
 // ── AUTHORS ───────────────────────────────────────────────────────────────
@@ -548,18 +847,16 @@ async function loadAuthors(){
   allAuthors=await api('GET','/api/authors');
   document.getElementById('authors-count').textContent=allAuthors.length+' author'+(allAuthors.length!==1?'s':'');
   const grid=document.getElementById('authors-grid');
-  if(!allAuthors.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><span class="ico">✍️</span><p>No authors yet. Add some in Admin.</p></div>`;return;}
+  if(!allAuthors.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><span class="ico">✍️</span><p>No authors yet.</p></div>`;return;}
   grid.innerHTML=allAuthors.map(a=>`
     <div class="author-card" onclick="openAuthor(${a.id})">
-      ${a.photo_url
-        ? `<img class="author-avatar" src="${a.photo_url}" alt="${a.name}"/>`
-        : `<div class="author-avatar-placeholder">✍️</div>`}
+      ${a.photo_url?`<img class="author-avatar" src="${a.photo_url}" alt="${a.name}"/>`
+        :`<div class="author-avatar-placeholder">✍️</div>`}
       <div class="author-name">${a.name}</div>
-      <div class="author-book-count" id="acount-${a.id}">Loading…</div>
+      <div class="author-book-count" id="acount-${a.id}">…</div>
     </div>
   `).join('');
-  // Load book counts
-  allAuthors.forEach(async a => {
+  allAuthors.forEach(async a=>{
     const books=await api('GET','/api/books?author_id='+a.id);
     const el=document.getElementById('acount-'+a.id);
     if(el) el.textContent=books.length+' book'+(books.length!==1?'s':'');
@@ -570,123 +867,166 @@ async function openAuthor(id){
   const data=await api('GET','/api/authors/'+id);
   document.getElementById('author-name').textContent=data.name;
   document.getElementById('author-bio').textContent=data.bio||'No biography available.';
-  // photo
   const pw=document.getElementById('author-photo-wrap');
-  pw.innerHTML=data.photo_url
-    ? `<img class="author-photo" src="${data.photo_url}" alt="${data.name}"/>`
-    : `<div class="author-photo-placeholder">✍️</div>`;
-  // links
+  pw.innerHTML=data.photo_url?`<img class="author-photo" src="${data.photo_url}" alt="${data.name}"/>`
+    :`<div class="author-photo-placeholder">✍️</div>`;
   const links=document.getElementById('author-links');
-  links.innerHTML='';
-  if(data.website) links.innerHTML+=`<a class="author-link" href="${data.website}" target="_blank">🌐 Website</a>`;
-  // books
+  links.innerHTML=data.website?`<a class="author-link" href="${data.website}" target="_blank">🌐 Website</a>`:'';
   document.getElementById('author-books-title').textContent=`Books by ${data.name}`;
   const grid=document.getElementById('author-books-grid');
-  if(!data.books.length){grid.innerHTML=`<div class="empty"><span class="ico">📭</span><p>No books added yet.</p></div>`;}
+  if(!data.books.length) grid.innerHTML=`<div class="empty"><span class="ico">📭</span><p>No books yet.</p></div>`;
   else {
-    // Merge with allBooks to get coverUrl
     const merged=data.books.map(b=>({...b,...(allBooks.find(x=>x.id===b.id)||{})}));
     grid.innerHTML=merged.map(b=>`
       <div class="book-card">
         <div class="${spineClass(b.genre)} book-spine"></div>
-        <div class="book-cover" onclick="openBook(${b.id})" style="cursor:pointer">
-          ${b.cover_url
-            ? `<img src="${b.cover_url}" alt="${b.title}"/>`
-            : `<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div></div>`}
+        <div class="book-cover" onclick="openBookDetail(${b.id})" style="cursor:pointer">
+          ${b.cover_url?`<img src="${b.cover_url}" alt="${esc(b.title)}"/>`
+            :`<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div></div>`}
         </div>
         <div class="book-body">
           <div class="book-title">${b.title}</div>
-          <div class="book-tags">
-            <span class="tag ${tagClass(b.genre)}">${b.genre}</span>
-            ${b.pdf_url?'<span class="tag tag-pdf">PDF</span>':''}
-          </div>
+          <div class="book-tags"><span class="tag ${tagClass(b.genre)}">${b.genre}</span>${b.pdf_url?'<span class="tag tag-pdf">PDF</span>':''}</div>
         </div>
         <div class="book-actions">
-          <button class="btn btn-read" onclick="openBook(${b.id})">📖 Read</button>
+          ${b.pdf_url?`<button class="btn btn-read" onclick="openBook(${b.id})">📖 Read</button>`:''}
           ${b.pdf_url?`<button class="btn btn-dl" onclick="dlBook(${b.id})">⬇</button>`:''}
         </div>
       </div>
     `).join('');
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('page-author').classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('nb-authors').classList.add('on');
 }
 
 async function openAuthorByName(name){
-  const author=allAuthors.find(a=>a.name.toLowerCase()===name.toLowerCase());
-  if(author){ openAuthor(author.id); return; }
-  // Try loading authors first
-  const authors=await api('GET','/api/authors');
-  const found=authors.find(a=>a.name.toLowerCase()===name.toLowerCase());
-  if(found) openAuthor(found.id);
-  else toast('No author page for '+name+' yet.');
+  if(!allAuthors.length) allAuthors=await api('GET','/api/authors');
+  const a=allAuthors.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(a) openAuthor(a.id); else toast('No author page for '+name+' yet.');
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────
+function openAuthModal(){ document.getElementById('auth-modal').classList.add('open'); }
+function closeAuthModal(){ document.getElementById('auth-modal').classList.remove('open'); }
+function switchAuthTab(tab){
+  document.getElementById('auth-login').style.display=tab==='login'?'':'none';
+  document.getElementById('auth-register').style.display=tab==='register'?'':'none';
+  document.getElementById('mt-login').classList.toggle('on',tab==='login');
+  document.getElementById('mt-register').classList.toggle('on',tab==='register');
+  document.getElementById('auth-msg').innerHTML='';
+}
+
 async function doLogin(){
   const email=document.getElementById('l-email').value.trim();
   const pass=document.getElementById('l-pass').value;
   const btn=document.getElementById('login-btn');
-  btn.innerHTML='<span class="spin"></span>Signing in…';btn.disabled=true;
-  const res=await api('POST','/api/login',{email,password:pass});
+  btn.innerHTML='<span class="spin"></span>…';btn.disabled=true;
+  // Try admin first
+  let res=await api('POST','/api/login',{email,password:pass});
+  if(res.error){
+    // Try user login
+    res=await api('POST','/api/user-login',{email,password:pass});
+  }
   btn.innerHTML='Sign In';btn.disabled=false;
-  if(res.error){showMsg('login-msg','err',res.error);return;}
-  setAdmin(res);nav('admin');
+  if(res.error){showMsg('auth-msg','err',res.error);return;}
+  closeAuthModal();
+  if(res.role==='admin'||res.email==='admin@library.com') setAdmin(res);
+  else setUser(res);
+  toast('Welcome back!');
 }
+
+async function doRegister(){
+  const name=document.getElementById('r-name').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const btn=document.getElementById('reg-btn');
+  btn.innerHTML='<span class="spin"></span>…';btn.disabled=true;
+  const res=await api('POST','/api/register',{name,email,password:pass});
+  btn.innerHTML='Create Account';btn.disabled=false;
+  if(res.error){showMsg('auth-msg','err',res.error);return;}
+  closeAuthModal();
+  setUser(res);
+  toast('Welcome to Maktaba, '+name+'!');
+}
+
 function setAdmin(data){
-  currentAdmin=data;
+  currentUser={...data,role:'admin'};
   document.getElementById('nb-admin').style.display='';
-  document.getElementById('nb-account').textContent='👤 Admin';
+  document.getElementById('nb-account').style.display='none';
+  document.getElementById('nb-profile').style.display='none';
 }
+
+function setUser(data){
+  currentUser={...data,role:'user'};
+  document.getElementById('nb-profile').style.display='';
+  document.getElementById('nav-username').textContent=data.name||data.email;
+  document.getElementById('nb-account').style.display='none';
+  loadFavorites().then(()=>renderBooks(allBooks));
+}
+
 async function doLogout(){
   await api('POST','/api/logout');
-  currentAdmin=null;
+  currentUser=null; userFavorites=new Set(); userProgress={};
   document.getElementById('nb-admin').style.display='none';
-  document.getElementById('nb-account').textContent='Sign In';
+  document.getElementById('nb-profile').style.display='none';
+  document.getElementById('nb-account').style.display='';
   nav('library');
+  toast('Signed out.');
+}
+
+async function changePassword(){
+  const current=document.getElementById('pw-current').value;
+  const newPw=document.getElementById('pw-new').value;
+  const confirm=document.getElementById('pw-confirm').value;
+  if(!current||!newPw||!confirm){showMsg('pw-msg','err','All fields required.');return;}
+  if(newPw.length<8){showMsg('pw-msg','err','Min 8 characters.');return;}
+  if(newPw!==confirm){showMsg('pw-msg','err','Passwords do not match.');return;}
+  const res=await api('POST','/api/change-password',{currentPassword:current,newPassword:newPw});
+  if(res.error){showMsg('pw-msg','err',res.error);return;}
+  showMsg('pw-msg','ok','Password changed!');
+  ['pw-current','pw-new','pw-confirm'].forEach(i=>document.getElementById(i).value='');
 }
 
 // ── ADMIN TABS ────────────────────────────────────────────────────────────
 function atab(name){
-  document.querySelectorAll('.atab').forEach((t,i)=>t.classList.toggle('on',['books','bulk','authors'][i]===name));
+  document.querySelectorAll('.atab').forEach((t,i)=>t.classList.toggle('on',['books','bulk','authors','users','settings'][i]===name));
   document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('ap-'+name).classList.add('on');
   if(name==='books') renderAdminBooks();
   if(name==='authors') renderAdminAuthors();
+  if(name==='users') loadAdminUsers();
 }
 
 // ── ADMIN BOOKS ───────────────────────────────────────────────────────────
-function fc(input,chosenId){
+function fc(input,chosenId,type){
   const file=input.files[0]||null;
   document.getElementById(chosenId).textContent=file?file.name:'';
-  if(chosenId==='cover-chosen') coverFile=file;
-  else if(chosenId==='pdf-chosen') pdfFile=file;
-  else if(chosenId==='photo-chosen') photoFile=file;
+  if(type==='cover') coverFile=file;
+  else if(type==='pdf') pdfFile=file;
+  else if(type==='photo') photoFile=file;
 }
 function dv(e,id){e.preventDefault();document.getElementById(id).classList.add('dv');}
 function dl(id){document.getElementById(id).classList.remove('dv');}
 function df(e,dropId,inputId){
   e.preventDefault();dl(dropId);
-  const file=e.dataTransfer.files[0];
-  if(!file) return;
+  const file=e.dataTransfer.files[0];if(!file) return;
   const isImg=file.type.startsWith('image/');
   const isPdf=file.type==='application/pdf';
-  if((inputId==='a-photo'||inputId==='b-cover')&&!isImg){toast('Please drop an image file.');return;}
-  if(inputId==='b-pdf'&&!isPdf){toast('Please drop a PDF file.');return;}
-  if(inputId==='cover-chosen'||inputId==='b-cover'){coverFile=file;document.getElementById('cover-chosen').textContent=file.name;}
-  else if(inputId==='b-pdf'){pdfFile=file;document.getElementById('pdf-chosen').textContent=file.name;}
-  else if(inputId==='a-photo'){photoFile=file;document.getElementById('photo-chosen').textContent=file.name;}
+  if(inputId==='b-cover'){if(!isImg){toast('Image only.');return;}coverFile=file;document.getElementById('cover-chosen').textContent=file.name;}
+  else if(inputId==='b-pdf'){if(!isPdf){toast('PDF only.');return;}pdfFile=file;document.getElementById('pdf-chosen').textContent=file.name;}
+  else if(inputId==='a-photo'){if(!isImg){toast('Image only.');return;}photoFile=file;document.getElementById('photo-chosen').textContent=file.name;}
 }
 
 async function saveBook(){
   const title=document.getElementById('b-title').value.trim();
   const author=document.getElementById('b-author').value.trim();
-  if(!title||!author){showMsg('book-msg','err','Title and author are required.');return;}
+  if(!title||!author){showMsg('book-msg','err','Title and author required.');return;}
   const fd=new FormData();
   fd.append('title',title);fd.append('author',author);
   fd.append('genre',document.getElementById('b-genre').value);
+  fd.append('language',document.getElementById('b-language').value);
   fd.append('emoji',document.getElementById('b-emoji').value.trim()||'📖');
   fd.append('description',document.getElementById('b-desc').value.trim());
   if(coverFile) fd.append('cover',coverFile);
@@ -694,8 +1034,7 @@ async function saveBook(){
   const btn=document.getElementById('book-save-btn');
   btn.innerHTML='<span class="spin"></span>Saving…';btn.disabled=true;
   const url=editBookId?'/api/books/'+editBookId:'/api/books';
-  const method=editBookId?'PUT':'POST';
-  const res=await fetch(url,{method,body:fd,credentials:'include'}).then(r=>r.json());
+  const res=await fetch(url,{method:editBookId?'PUT':'POST',body:fd,credentials:'include'}).then(r=>r.json());
   btn.innerHTML='Save Book';btn.disabled=false;
   if(res.error){showMsg('book-msg','err',res.error);return;}
   showMsg('book-msg','ok',editBookId?'Book updated!':'Book added!');
@@ -708,9 +1047,10 @@ function editBook(id){
   document.getElementById('b-title').value=b.title;
   document.getElementById('b-author').value=b.author;
   document.getElementById('b-genre').value=b.genre;
+  document.getElementById('b-language').value=b.language||'English';
   document.getElementById('b-emoji').value=b.emoji||'';
   document.getElementById('b-desc').value=b.description||'';
-  document.getElementById('cover-chosen').textContent=b.cover_path?'(current cover kept)':'';
+  document.getElementById('cover-chosen').textContent=b.cover_url?'(current kept)':'';
   document.getElementById('pdf-chosen').textContent=b.pdf_name?'(current: '+b.pdf_name+')':'';
   document.getElementById('book-form-title').textContent='Edit Book';
   document.getElementById('book-cancel-btn').style.display='';
@@ -719,9 +1059,9 @@ function editBook(id){
 
 function cancelBookEdit(){
   editBookId=null;coverFile=null;pdfFile=null;
-  ['b-title','b-emoji','b-desc'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('b-author').value='';
+  ['b-title','b-author','b-emoji','b-desc'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('b-genre').selectedIndex=0;
+  document.getElementById('b-language').selectedIndex=0;
   document.getElementById('cover-chosen').textContent='';
   document.getElementById('pdf-chosen').textContent='';
   document.getElementById('b-cover').value='';
@@ -732,21 +1072,21 @@ function cancelBookEdit(){
 
 async function deleteBook(id){
   if(!confirm('Delete this book?')) return;
-  const res=await api('DELETE','/api/books/'+id);
-  if(res.error){toast('Error: '+res.error);return;}
+  await api('DELETE','/api/books/'+id);
   toast('Book deleted.');await loadBooks();renderAdminBooks();
 }
 
 function renderAdminBooks(){
   const tbody=document.getElementById('admin-books-body');
-  if(!allBooks.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No books yet.</td></tr>';return;}
+  if(!allBooks.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">No books yet.</td></tr>';return;}
   tbody.innerHTML=allBooks.map(b=>`
     <tr>
-      <td>${b.cover_url?`<img src="${b.cover_url}" style="width:36px;height:50px;object-fit:cover;border-radius:3px"/>`:b.emoji}</td>
+      <td>${b.cover_url?`<img src="${b.cover_url}" style="width:32px;height:44px;object-fit:cover;border-radius:3px"/>`:b.emoji}</td>
       <td><strong>${b.title}</strong></td>
       <td style="color:var(--muted)">${b.author}</td>
       <td><span class="tag ${tagClass(b.genre)}">${b.genre}</span></td>
-      <td style="font-size:12px">${b.pdf_url?'📄 PDF':'—'} ${b.cover_url?'🖼️':'—'}</td>
+      <td style="font-size:12px">${b.language||'En'}</td>
+      <td style="font-size:12px">${b.pdf_url?'📄':'-'} ${b.cover_url?'🖼️':'-'}</td>
       <td style="white-space:nowrap">
         <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;margin-right:4px" onclick="editBook(${b.id})">Edit</button>
         <button class="btn btn-danger" style="font-size:11px;padding:5px 10px" onclick="deleteBook(${b.id})">Delete</button>
@@ -757,43 +1097,30 @@ function renderAdminBooks(){
 
 // ── BULK IMPORT ───────────────────────────────────────────────────────────
 function parseBulk(){
-  const lines=document.getElementById('bulk-text').value.split('\n').filter(l=>l.trim());
-  return lines.map(line=>{
-    const parts=line.split('|').map(s=>s.trim());
-    return {
-      title:parts[0]||'',
-      author:parts[1]||'',
-      genre:parts[2]||'Other',
-      description:parts[3]||'',
-      valid:!!(parts[0]&&parts[1])
-    };
+  return document.getElementById('bulk-text').value.split('\n').filter(l=>l.trim()).map(line=>{
+    const p=line.split('|').map(s=>s.trim());
+    return {title:p[0]||'',author:p[1]||'',genre:p[2]||'Other',language:p[3]||'English',description:p[4]||'',valid:!!(p[0]&&p[1])};
   });
 }
-
 function previewBulk(){
   const books=parseBulk();
   document.getElementById('bulk-count').textContent=books.filter(b=>b.valid).length+' valid books';
   document.getElementById('bulk-preview').innerHTML=books.map((b,i)=>`
     <div class="bulk-row">
       <span class="bulk-row-num">${i+1}</span>
-      <span class="bulk-row-info">
-        ${b.valid
-          ? `<strong>${b.title}</strong> — ${b.author} <span class="tag tag-genre" style="margin-left:6px">${b.genre}</span>`
-          : `<span class="bulk-row-err">⚠ Missing title or author: "${b.title||'?'}"</span>`}
-      </span>
+      <span>${b.valid?`<strong>${b.title}</strong> — ${b.author} <span class="tag tag-genre">${b.genre}</span> <span class="tag" style="background:#DBEAFE;color:#1E40AF">${b.language}</span>`:`<span class="bulk-row-err">⚠ Missing title or author</span>`}</span>
     </div>
   `).join('');
 }
-
 async function doBulkImport(){
   const books=parseBulk().filter(b=>b.valid);
-  if(!books.length){showMsg('bulk-msg','err','No valid books to import. Make sure each line has Title | Author.');return;}
+  if(!books.length){showMsg('bulk-msg','err','No valid books.');return;}
   const btn=document.getElementById('bulk-btn');
-  btn.innerHTML=`<span class="spin"></span>Importing ${books.length} books…`;btn.disabled=true;
+  btn.innerHTML=`<span class="spin"></span>Importing ${books.length}…`;btn.disabled=true;
   const res=await api('POST','/api/books/bulk',{books});
   btn.innerHTML='Import Books';btn.disabled=false;
   if(res.error){showMsg('bulk-msg','err',res.error);return;}
-  showMsg('bulk-msg','ok',`✅ Successfully imported ${res.added} books!`);
+  showMsg('bulk-msg','ok',`✅ Imported ${res.added} books!`);
   document.getElementById('bulk-text').value='';
   document.getElementById('bulk-preview').innerHTML='';
   document.getElementById('bulk-count').textContent='';
@@ -803,7 +1130,7 @@ async function doBulkImport(){
 // ── ADMIN AUTHORS ─────────────────────────────────────────────────────────
 async function saveAuthor(){
   const name=document.getElementById('a-name').value.trim();
-  if(!name){showMsg('author-msg','err','Name is required.');return;}
+  if(!name){showMsg('author-msg','err','Name required.');return;}
   const fd=new FormData();
   fd.append('name',name);
   fd.append('bio',document.getElementById('a-bio').value.trim());
@@ -812,8 +1139,7 @@ async function saveAuthor(){
   const btn=document.getElementById('author-save-btn');
   btn.innerHTML='<span class="spin"></span>Saving…';btn.disabled=true;
   const url=editAuthorId?'/api/authors/'+editAuthorId:'/api/authors';
-  const method=editAuthorId?'PUT':'POST';
-  const res=await fetch(url,{method,body:fd,credentials:'include'}).then(r=>r.json());
+  const res=await fetch(url,{method:editAuthorId?'PUT':'POST',body:fd,credentials:'include'}).then(r=>r.json());
   btn.innerHTML='Save Author';btn.disabled=false;
   if(res.error){showMsg('author-msg','err',res.error);return;}
   showMsg('author-msg','ok',editAuthorId?'Author updated!':'Author added!');
@@ -828,7 +1154,7 @@ function editAuthorAdmin(id){
   document.getElementById('a-name').value=a.name;
   document.getElementById('a-bio').value=a.bio||'';
   document.getElementById('a-website').value=a.website||'';
-  document.getElementById('photo-chosen').textContent=a.photo_path?'(current photo kept)':'';
+  document.getElementById('photo-chosen').textContent=a.photo_url?'(current kept)':'';
   document.getElementById('author-form-title').textContent='Edit Author';
   document.getElementById('author-cancel-btn').style.display='';
   document.querySelector('#ap-authors .card').scrollIntoView({behavior:'smooth'});
@@ -847,8 +1173,7 @@ function cancelAuthorEdit(){
 
 async function deleteAuthor(id){
   if(!confirm('Delete this author?')) return;
-  const res=await api('DELETE','/api/authors/'+id);
-  if(res.error){toast('Error: '+res.error);return;}
+  await api('DELETE','/api/authors/'+id);
   toast('Author deleted.');
   allAuthors=await api('GET','/api/authors');
   renderAdminAuthors();
@@ -859,16 +1184,39 @@ function renderAdminAuthors(){
   if(!allAuthors.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">No authors yet.</td></tr>';return;}
   tbody.innerHTML=allAuthors.map(a=>`
     <tr>
-      <td>${a.photo_url?`<img src="${a.photo_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:
-        `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px">✍️</div>`}</td>
+      <td>${a.photo_url?`<img src="${a.photo_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"/>`
+        :`<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px">✍️</div>`}</td>
       <td><strong>${a.name}</strong></td>
-      <td style="color:var(--muted);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.bio||'—'}</td>
+      <td style="color:var(--muted);font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.bio||'—'}</td>
       <td style="white-space:nowrap">
         <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;margin-right:4px" onclick="editAuthorAdmin(${a.id})">Edit</button>
         <button class="btn btn-danger" style="font-size:11px;padding:5px 10px" onclick="deleteAuthor(${a.id})">Delete</button>
       </td>
     </tr>
   `).join('');
+}
+
+// ── ADMIN USERS ───────────────────────────────────────────────────────────
+async function loadAdminUsers(){
+  const users=await api('GET','/api/admin/users');
+  const tbody=document.getElementById('admin-users-body');
+  if(!users.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No users yet.</td></tr>';return;}
+  tbody.innerHTML=users.map(u=>`
+    <tr>
+      <td><strong>${u.name}</strong></td>
+      <td style="color:var(--muted);font-size:12px">${u.email}</td>
+      <td><span class="tag tag-new">${u.favorites}</span></td>
+      <td><span class="tag tag-genre">${u.reviews}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${u.created_at?.split(' ')[0]||''}</td>
+      <td><button class="btn btn-danger" style="font-size:11px;padding:5px 10px" onclick="deleteUser(${u.id})">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+async function deleteUser(id){
+  if(!confirm('Delete this user? This will remove all their favorites and reviews.')) return;
+  await api('DELETE','/api/admin/users/'+id);
+  toast('User deleted.');loadAdminUsers();
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────────
@@ -883,21 +1231,6 @@ function toast(msg){
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeReader();});
-
-async function changePassword(){
-  const current=document.getElementById('pw-current').value;
-  const newPw=document.getElementById('pw-new').value;
-  const confirm=document.getElementById('pw-confirm').value;
-  if(!current||!newPw||!confirm){showMsg('pw-msg','err','All fields required.');return;}
-  if(newPw.length<8){showMsg('pw-msg','err','New password must be at least 8 characters.');return;}
-  if(newPw!==confirm){showMsg('pw-msg','err','New passwords do not match.');return;}
-  const res=await api('POST','/api/change-password',{currentPassword:current,newPassword:newPw});
-  if(res.error){showMsg('pw-msg','err',res.error);return;}
-  showMsg('pw-msg','ok','Password changed successfully!');
-  document.getElementById('pw-current').value='';
-  document.getElementById('pw-new').value='';
-  document.getElementById('pw-confirm').value='';
-}
 
 init();
 </script>
