@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Maktaba — Digital Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#1C1917;--paper:#F5F0E8;--card:#FDFAF4;--line:#DDD8CC;
+  --muted:#7C7567;--accent:#8B3A0F;--accent2:#C9622A;
+  --blue:#1B4F8A;--fantasy:#4A1D96;--fantasy2:#7C3AED;
+  --green:#166534;--r:8px;--sh:0 4px 20px rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+
+/* NAV */
+nav{background:var(--ink);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:58px;position:sticky;top:0;z-index:300}
+.logo{font-family:'Playfair Display',serif;font-size:22px;cursor:pointer;letter-spacing:.5px}
+.logo span{color:var(--accent2);font-style:italic}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nb{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;padding:8px 13px;border-radius:6px;font-size:14px;font-family:inherit;transition:all .15s}
+.nb:hover{color:white;background:rgba(255,255,255,.1)}
+.nb.on{color:white;background:rgba(255,255,255,.15)}
+.nb.pill{background:var(--accent);color:white;border-radius:999px;display:none}
+.nb.pill:hover{background:var(--accent2)}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* HERO */
+.hero{background:var(--ink);color:white;padding:64px 36px 52px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(139,58,15,.3),transparent 70%);pointer-events:none}
+.hero h1{font-family:'Playfair Display',serif;font-size:52px;line-height:1.1;margin-bottom:12px;position:relative}
+.hero h1 em{font-style:italic;color:var(--accent2)}
+.hero p{font-size:17px;color:rgba(255,255,255,.6);max-width:460px;margin:0 auto 28px;position:relative}
+.search-bar{display:flex;max-width:500px;margin:0 auto 24px;position:relative}
+.search-bar input{flex:1;padding:13px 18px;border:none;border-radius:var(--r) 0 0 var(--r);font-size:15px;font-family:inherit;outline:none}
+.search-bar button{padding:13px 20px;background:var(--accent);color:white;border:none;border-radius:0 var(--r) var(--r) 0;cursor:pointer;font-size:15px;font-family:inherit;font-weight:600;transition:background .15s}
+.search-bar button:hover{background:var(--accent2)}
+.genre-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;position:relative}
+.gpill{padding:6px 16px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);background:transparent;font-family:inherit;transition:all .15s}
+.gpill:hover,.gpill.on{background:white;color:var(--ink);border-color:white}
+.gpill.fantasy.on{background:var(--fantasy2);color:white;border-color:var(--fantasy2)}
+
+/* LAYOUT */
+.wrap{max-width:1280px;margin:0 auto;padding:40px 36px}
+.section-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:24px}
+.section-title{font-family:'Playfair Display',serif;font-size:26px}
+.section-sub{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* BOOK GRID */
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px}
+.book-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;position:relative}
+.book-card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.book-spine{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:var(--r) 0 0 var(--r)}
+.spine-fiction{background:linear-gradient(180deg,#8B3A0F,#C9622A)}
+.spine-fantasy{background:linear-gradient(180deg,#4A1D96,#7C3AED)}
+.spine-science{background:linear-gradient(180deg,#1B4F8A,#3B82F6)}
+.spine-history{background:linear-gradient(180deg,#1C4532,#166534)}
+.spine-other{background:linear-gradient(180deg,#374151,#6B7280)}
+.book-cover{width:100%;padding-top:138%;position:relative;overflow:hidden;background:linear-gradient(145deg,#2C1810,#5C3317)}
+.book-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.book-cover-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 12px;text-align:center}
+.book-cover-emoji{font-size:38px;margin-bottom:10px}
+.book-cover-title{font-family:'Playfair Display',serif;font-size:12px;color:white;line-height:1.4}
+.book-cover-author{font-size:10px;color:rgba(255,255,255,.55);margin-top:5px;font-style:italic}
+.book-body{padding:12px 12px 10px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
+.book-title{font-weight:600;font-size:13px;line-height:1.4}
+.book-author{font-size:12px;color:var(--muted);font-style:italic;cursor:pointer}
+.book-author:hover{color:var(--accent);text-decoration:underline}
+.book-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.tag{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-family:'JetBrains Mono',monospace}
+.tag-genre{background:#EDE8DF;color:var(--muted)}
+.tag-fantasy{background:#EDE9FE;color:var(--fantasy)}
+.tag-new{background:#FEF3E2;color:var(--accent)}
+.tag-pdf{background:#DBEAFE;color:var(--blue)}
+.book-actions{display:flex;gap:6px;padding:0 12px 12px 16px}
+.btn{padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.btn-read{background:var(--blue);color:white;flex:1;justify-content:center}
+.btn-read:hover{background:#163f6e}
+.btn-dl{background:var(--line);color:var(--ink);padding:8px 10px}
+.btn-dl:hover{background:#ccc8bc}
+
+/* AUTHOR CARDS */
+.authors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px}
+.author-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.author-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.author-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:block;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.author-avatar-placeholder{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px;color:white}
+.author-name{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:4px}
+.author-book-count{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* AUTHOR PAGE */
+.author-hero{background:var(--ink);color:white;padding:48px 36px}
+.author-hero-inner{max-width:800px;margin:0 auto;display:flex;gap:32px;align-items:flex-start}
+.author-photo{width:140px;height:140px;border-radius:12px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.author-photo-placeholder{width:140px;height:140px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:56px}
+.author-info h1{font-family:'Playfair Display',serif;font-size:36px;margin-bottom:8px}
+.author-bio{font-size:15px;color:rgba(255,255,255,.7);line-height:1.7;margin-top:10px}
+.author-links{display:flex;gap:10px;margin-top:14px}
+.author-link{padding:6px 14px;border-radius:999px;font-size:13px;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);text-decoration:none;transition:all .15s}
+.author-link:hover{background:white;color:var(--ink)}
+.back-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);cursor:pointer;padding:8px 14px;border-radius:6px;font-size:13px;font-family:inherit;margin-bottom:20px;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.back-btn:hover{background:rgba(255,255,255,.2);color:white}
+
+/* READER */
+.reader-overlay{display:none;position:fixed;inset:0;z-index:500;background:#111;flex-direction:column}
+.reader-overlay.open{display:flex}
+.reader-bar{background:var(--ink);color:white;display:flex;align-items:center;gap:10px;padding:0 20px;height:50px;flex-shrink:0}
+.reader-title{flex:1;font-size:14px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reader-close{background:none;border:none;color:white;font-size:22px;cursor:pointer;opacity:.7;padding:4px 8px}
+.reader-close:hover{opacity:1}
+.reader-frame{flex:1;width:100%;border:none}
+
+/* ADMIN */
+.admin-wrap{max-width:960px;margin:0 auto;padding:36px}
+.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:28px;padding-bottom:0}
+.atab{padding:10px 18px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px;font-weight:500;border:none;background:none;font-family:inherit;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
+.atab.on{color:var(--accent);border-bottom-color:var(--accent);background:#FEF3E2}
+.admin-panel{display:none}.admin-panel.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;margin-bottom:24px}
+.card h3{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:18px}
+.fg{margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:5px}
+input[type=text],input[type=email],input[type=password],input[type=url],select,textarea{width:100%;padding:9px 13px;border:1px solid var(--line);border-radius:6px;font-size:14px;font-family:inherit;background:white;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;background:white;position:relative;transition:all .2s}
+.drop:hover,.drop.dv{border-color:var(--accent);background:#FDF5EE}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-ico{font-size:32px;display:block;margin-bottom:8px}
+.drop-txt{font-size:14px;color:var(--muted)}.drop-txt strong{color:var(--accent)}
+.chosen{font-size:12px;color:var(--blue);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.btn-save{background:var(--accent);color:white;padding:10px 22px;font-size:14px}
+.btn-save:hover{background:var(--accent2)}
+.btn-danger{background:#D94F3D;color:white}
+.btn-danger:hover{background:#b83e2e}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--line)}
+.btn-blue{background:var(--blue);color:white}
+.btn-blue:hover{background:#163f6e}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--paper)}
+.msg{padding:11px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.msg-ok{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.msg-err{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+
+/* BULK IMPORT */
+.bulk-area{width:100%;min-height:180px;padding:12px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;background:white;outline:none;resize:vertical;line-height:1.6}
+.bulk-area:focus{border-color:var(--accent)}
+.bulk-preview{margin-top:14px}
+.bulk-row{display:flex;gap:8px;align-items:center;padding:8px 10px;background:white;border:1px solid var(--line);border-radius:6px;margin-bottom:6px;font-size:13px}
+.bulk-row-num{font-family:'JetBrains Mono',monospace;color:var(--muted);width:22px;flex-shrink:0}
+.bulk-row-info{flex:1}
+.bulk-row-err{color:#D94F3D;font-size:12px}
+
+/* LOGIN */
+.login-wrap{max-width:400px;margin:80px auto;padding:0 20px}
+.login-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:32px}
+.login-card h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:22px;text-align:center}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:white;padding:11px 22px;border-radius:999px;font-size:13px;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:64px 20px;color:var(--muted);grid-column:1/-1}
+.empty .ico{font-size:56px;display:block;margin-bottom:14px}
+
+/* SPINNER */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .6s linear infinite;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:700px){
+  nav{padding:0 14px}.hero{padding:44px 16px 36px}.hero h1{font-size:34px}
+  .wrap{padding:24px 14px}.books-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .admin-wrap{padding:18px 14px}.frow,.frow3{grid-template-columns:1fr}
+  .author-hero-inner{flex-direction:column;align-items:center;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="nav('library')">Mak<span>taba</span></div>
+  <div class="nav-links">
+    <button class="nb on" id="nb-library" onclick="nav('library')">Library</button>
+    <button class="nb" id="nb-authors" onclick="nav('authors')">Authors</button>
+    <button class="nb" id="nb-account" onclick="nav('account')">Sign In</button>
+    <button class="nb pill" id="nb-admin" onclick="nav('admin')">⚙ Admin</button>
+  </div>
+</nav>
+
+<!-- LIBRARY -->
+<div class="page active" id="page-library">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <h1>Your <em>digital</em> bookshelf.</h1>
+    <p>Browse, read online, or download any book as PDF.</p>
+    <div class="search-bar">
+      <input id="search" placeholder="Search title, author, genre…" oninput="doSearch()"/>
+      <button onclick="doSearch()">Search</button>
+    </div>
+    <div class="genre-pills">
+      <button class="gpill on" data-genre="" onclick="setGenre(this,'')">All</button>
+      <button class="gpill" data-genre="Fiction" onclick="setGenre(this,'Fiction')">Fiction</button>
+      <button class="gpill fantasy" data-genre="Fantasy" onclick="setGenre(this,'Fantasy')">✨ Fantasy</button>
+      <button class="gpill" data-genre="Science" onclick="setGenre(this,'Science')">Science</button>
+      <button class="gpill" data-genre="History" onclick="setGenre(this,'History')">History</button>
+      <button class="gpill" data-genre="Philosophy" onclick="setGenre(this,'Philosophy')">Philosophy</button>
+      <button class="gpill" data-genre="Non-fiction" onclick="setGenre(this,'Non-fiction')">Non-fiction</button>
+      <button class="gpill" data-genre="Technology" onclick="setGenre(this,'Technology')">Technology</button>
+      <button class="gpill" data-genre="Religion" onclick="setGenre(this,'Religion')">Religion</button>
+      <button class="gpill" data-genre="Literature" onclick="setGenre(this,'Literature')">Literature</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="section-hd">
+      <span class="section-title" id="lib-title">All Books</span>
+      <span class="section-sub" id="lib-count"></span>
+    </div>
+    <div class="books-grid" id="books-grid"></div>
+  </div>
+</div>
+
+<!-- AUTHORS LIST -->
+<div class="page" id="page-authors">
+  <div class="wrap">
+    <div class="section-hd" style="margin-top:8px">
+      <span class="section-title">Authors</span>
+      <span class="section-sub" id="authors-count"></span>
+    </div>
+    <div class="authors-grid" id="authors-grid"></div>
+  </div>
+</div>
+
+<!-- SINGLE AUTHOR -->
+<div class="page" id="page-author">
+  <div class="author-hero">
+    <div style="max-width:800px;margin:0 auto">
+      <button class="back-btn" onclick="nav('authors')">← Back to Authors</button>
+      <div class="author-hero-inner">
+        <div id="author-photo-wrap"></div>
+        <div class="author-info">
+          <h1 id="author-name"></h1>
+          <p id="author-bio" class="author-bio"></p>
+          <div class="author-links" id="author-links"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="section-hd">
+      <span class="section-title" id="author-books-title">Books</span>
+    </div>
+    <div class="books-grid" id="author-books-grid"></div>
+  </div>
+</div>
+
+<!-- ACCOUNT -->
+<div class="page" id="page-account">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h2>Admin Sign In</h2>
+      <div id="login-msg"></div>
+      <div class="fg"><label>Email</label><input id="l-email" type="email" placeholder="admin@library.com"/></div>
+      <div class="fg"><label>Password</label><input id="l-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn btn-save" style="width:100%;margin-top:6px;justify-content:center" onclick="doLogin()" id="login-btn">Sign In</button>
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--muted)">Default: admin@library.com / admin123</p>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div class="admin-wrap">
+    <h2 style="font-family:'Playfair Display',serif;font-size:28px;margin-bottom:22px">Admin Panel</h2>
+    <div class="admin-tabs">
+      <button class="atab on" onclick="atab('books')">📚 Books</button>
+      <button class="atab" onclick="atab('bulk')">⚡ Bulk Import</button>
+      <button class="atab" onclick="atab('authors')">✍️ Authors</button>
+    </div>
+
+    <!-- BOOKS PANEL -->
+    <div class="admin-panel on" id="ap-books">
+      <div class="card">
+        <h3 id="book-form-title">Add New Book</h3>
+        <div id="book-msg"></div>
+        <div class="frow">
+          <div class="fg"><label>Title</label><input id="b-title" placeholder="Book title"/></div>
+          <div class="fg"><label>Author</label><input id="b-author" placeholder="Author name"/></div>
+        </div>
+        <div class="frow3">
+          <div class="fg"><label>Genre</label>
+            <select id="b-genre">
+              <option>Fiction</option><option>Fantasy</option><option>Non-fiction</option>
+              <option>Science</option><option>History</option><option>Philosophy</option>
+              <option>Technology</option><option>Religion</option><option>Literature</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Emoji (fallback cover)</label><input id="b-emoji" placeholder="📖" maxlength="4"/></div>
+          <div class="fg"><label>Description</label><input id="b-desc" placeholder="Short summary…"/></div>
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <label>Book Cover Image</label>
+            <div class="drop" id="cover-drop" ondragover="dv(event,'cover-drop')" ondragleave="dl('cover-drop')" ondrop="df(event,'cover-drop','b-cover')">
+              <input type="file" accept="image/*" id="b-cover" onchange="fc(this,'cover-chosen')"/>
+              <span class="drop-ico">🖼️</span>
+              <div class="drop-txt">Drop image or <strong>click to browse</strong></div>
+              <div class="chosen" id="cover-chosen"></div>
+            </div>
+          </div>
+          <div class="fg">
+            <label>PDF File</label>
+            <div class="drop" id="pdf-drop" ondragover="dv(event,'pdf-drop')" ondragleave="dl('pdf-drop')" ondrop="df(event,'pdf-drop','b-pdf')">
+              <input type="file" accept=".pdf" id="b-pdf" onchange="fc(this,'pdf-chosen')"/>
+              <span class="drop-ico">📄</span>
+              <div class="drop-txt">Drop PDF or <strong>click to browse</strong></div>
+              <div class="chosen" id="pdf-chosen"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-save" id="book-save-btn" onclick="saveBook()">Save Book</button>
+          <button class="btn btn-ghost" id="book-cancel-btn" style="display:none" onclick="cancelBookEdit()">Cancel</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>All Books</h3>
+        <table class="tbl"><thead><tr><th>Cover</th><th>Title</th><th>Author</th><th>Genre</th><th>Files</th><th>Actions</th></tr></thead>
+        <tbody id="admin-books-body"></tbody></table>
+      </div>
+      <div class="card" style="max-width:420px">
+      <h3>🔐 Change Password</h3>
+      <div id="pw-msg"></div>
+      <div class="fg"><label>Current Password</label><input type="password" id="pw-current" placeholder="Current password"/></div>
+      <div class="fg"><label>New Password</label><input type="password" id="pw-new" placeholder="Min 8 characters"/></div>
+      <div class="fg"><label>Confirm New Password</label><input type="password" id="pw-confirm" placeholder="Repeat new password"/></div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-save" onclick="changePassword()">Update Password</button>
+        <button class="btn btn-ghost" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+    </div>
+
+    <!-- BULK PANEL -->
+    <div class="admin-panel" id="ap-bulk">
+      <div class="card">
+        <h3>⚡ Bulk Import Books</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+          Paste one book per line. Format:<br/>
+          <code style="background:#f0ede6;padding:2px 6px;border-radius:4px;font-size:12px">Title | Author | Genre | Description</code><br/>
+          Genre and description are optional. Example:<br/>
+          <code style="background:#f0ede6;padding:2px 6px;border-radius:4px;font-size:12px">Dune | Frank Herbert | Fantasy | Epic sci-fi saga</code>
+        </p>
+        <div id="bulk-msg"></div>
+        <textarea class="bulk-area" id="bulk-text" placeholder="Dune | Frank Herbert | Fantasy | Epic sci-fi saga&#10;1984 | George Orwell | Fiction | Dystopian classic&#10;Sapiens | Yuval Noah Harari | History" oninput="previewBulk()"></textarea>
+        <div class="bulk-preview" id="bulk-preview"></div>
+        <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+          <button class="btn btn-save" onclick="doBulkImport()" id="bulk-btn">Import Books</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('bulk-text').value='';document.getElementById('bulk-preview').innerHTML=''">Clear</button>
+          <span id="bulk-count" style="font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTHORS PANEL -->
+    <div class="admin-panel" id="ap-authors">
+      <div class="card">
+        <h3 id="author-form-title">Add New Author</h3>
+        <div id="author-msg"></div>
+        <div class="frow">
+          <div class="fg"><label>Full Name</label><input id="a-name" placeholder="Author's full name"/></div>
+          <div class="fg"><label>Website (optional)</label><input id="a-website" type="url" placeholder="https://…"/></div>
+        </div>
+        <div class="fg"><label>Bio</label><textarea id="a-bio" rows="3" placeholder="A few sentences about the author…"></textarea></div>
+        <div class="fg">
+          <label>Author Photo</label>
+          <div class="drop" id="photo-drop" ondragover="dv(event,'photo-drop')" ondragleave="dl('photo-drop')" ondrop="df(event,'photo-drop','a-photo')">
+            <input type="file" accept="image/*" id="a-photo" onchange="fc(this,'photo-chosen')"/>
+            <span class="drop-ico">👤</span>
+            <div class="drop-txt">Drop photo or <strong>click to browse</strong></div>
+            <div class="chosen" id="photo-chosen"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-save" id="author-save-btn" onclick="saveAuthor()">Save Author</button>
+          <button class="btn btn-ghost" id="author-cancel-btn" style="display:none" onclick="cancelAuthorEdit()">Cancel</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>All Authors</h3>
+        <table class="tbl"><thead><tr><th>Photo</th><th>Name</th><th>Bio</th><th>Actions</th></tr></thead>
+        <tbody id="admin-authors-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- READER -->
+<div class="reader-overlay" id="reader">
+  <div class="reader-bar">
+    <span class="reader-title" id="reader-title">Reading…</span>
+    <button class="btn btn-read" style="flex:none;padding:6px 12px;font-size:12px" onclick="dlFromReader()">⬇ Download</button>
+    <button class="reader-close" onclick="closeReader()">✕</button>
+  </div>
+  <iframe class="reader-frame" id="reader-frame" src="about:blank"></iframe>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────
+let allBooks=[], allAuthors=[], currentAdmin=null;
+let editBookId=null, editAuthorId=null, readerBook=null;
+let coverFile=null, pdfFile=null, photoFile=null;
+let activeGenre='';
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+async function init(){
+  const me = await api('GET','/api/me');
+  if(me.admin) setAdmin(me.admin);
+  await loadBooks();
+}
+
+// ── API ───────────────────────────────────────────────────────────────────
+async function api(method,url,body){
+  const opts={method,credentials:'include'};
+  if(body&&!(body instanceof FormData)){opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify(body);}
+  else if(body instanceof FormData) opts.body=body;
+  const r=await fetch(url,opts);
+  return r.json();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+page).classList.add('active');
+  const nb=document.getElementById('nb-'+page);
+  if(nb) nb.classList.add('on');
+  if(page==='library') renderBooks(allBooks);
+  if(page==='authors') loadAuthors();
+  if(page==='admin') renderAdminBooks();
+}
+
+// ── BOOKS ─────────────────────────────────────────────────────────────────
+async function loadBooks(){
+  allBooks = await api('GET','/api/books');
+  renderBooks(allBooks);
+}
+
+async function doSearch(){
+  const q=document.getElementById('search').value.trim();
+  const url='/api/books'+(q?'?q='+encodeURIComponent(q):'')+(activeGenre?'&genre='+encodeURIComponent(activeGenre):'');
+  const books=await api('GET',url);
+  renderBooks(books);
+}
+
+async function setGenre(el,genre){
+  activeGenre=genre;
+  document.querySelectorAll('.gpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('lib-title').textContent = genre ? genre+' Books' : 'All Books';
+  await doSearch();
+}
+
+function spineClass(genre){
+  const g=(genre||'').toLowerCase();
+  if(g==='fiction'||g==='literature') return 'spine-fiction';
+  if(g==='fantasy') return 'spine-fantasy';
+  if(g==='science'||g==='technology') return 'spine-science';
+  if(g==='history'||g==='philosophy'||g==='non-fiction'||g==='religion') return 'spine-history';
+  return 'spine-other';
+}
+
+function tagClass(genre){
+  return genre==='Fantasy'?'tag-fantasy':'tag-genre';
+}
+
+function renderBooks(books){
+  document.getElementById('lib-count').textContent=books.length+' book'+(books.length!==1?'s':'');
+  const grid=document.getElementById('books-grid');
+  if(!books.length){grid.innerHTML=`<div class="empty"><span class="ico">📭</span><p>No books found.</p></div>`;return;}
+  grid.innerHTML=books.map(b=>`
+    <div class="book-card">
+      <div class="${spineClass(b.genre)} book-spine"></div>
+      <div class="book-cover" onclick="openBook(${b.id})" style="cursor:pointer">
+        ${b.cover_url
+          ? `<img src="${b.cover_url}" alt="${b.title}"/>`
+          : `<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div><div class="book-cover-author">${b.author}</div></div>`
+        }
+      </div>
+      <div class="book-body">
+        <div class="book-title">${b.title}</div>
+        <div class="book-author" onclick="openAuthorByName('${escHtml(b.author)}')">${b.author}</div>
+        <div class="book-tags">
+          <span class="tag ${tagClass(b.genre)}">${b.genre}</span>
+          ${b.is_new?'<span class="tag tag-new">New</span>':''}
+          ${b.pdf_url?'<span class="tag tag-pdf">PDF</span>':''}
+        </div>
+      </div>
+      <div class="book-actions">
+        <button class="btn btn-read" onclick="openBook(${b.id})">📖 Read</button>
+        ${b.pdf_url?`<button class="btn btn-dl" onclick="dlBook(${b.id})">⬇</button>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function escHtml(s){ return (s||'').replace(/'/g,"\\'"); }
+
+function openBook(id){
+  const b=allBooks.find(x=>x.id===id);
+  if(!b) return;
+  if(!b.pdf_url){toast('No PDF uploaded yet.');return;}
+  readerBook=b;
+  document.getElementById('reader-title').textContent=`${b.title} — ${b.author}`;
+  document.getElementById('reader-frame').src='/api/pdf/'+b.id;
+  document.getElementById('reader').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeReader(){
+  document.getElementById('reader').classList.remove('open');
+  document.getElementById('reader-frame').src='about:blank';
+  document.body.style.overflow='';readerBook=null;
+}
+function dlFromReader(){if(readerBook) dlBook(readerBook.id);}
+function dlBook(id){
+  const b=allBooks.find(x=>x.id===id);
+  if(!b||!b.pdf_url){toast('No PDF available.');return;}
+  const a=document.createElement('a');
+  a.href='/api/pdf/'+b.id;
+  a.download=b.pdf_name||b.title+'.pdf';
+  a.click();
+  toast('Downloading: '+b.title);
+}
+
+// ── AUTHORS ───────────────────────────────────────────────────────────────
+async function loadAuthors(){
+  allAuthors=await api('GET','/api/authors');
+  document.getElementById('authors-count').textContent=allAuthors.length+' author'+(allAuthors.length!==1?'s':'');
+  const grid=document.getElementById('authors-grid');
+  if(!allAuthors.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><span class="ico">✍️</span><p>No authors yet. Add some in Admin.</p></div>`;return;}
+  grid.innerHTML=allAuthors.map(a=>`
+    <div class="author-card" onclick="openAuthor(${a.id})">
+      ${a.photo_url
+        ? `<img class="author-avatar" src="${a.photo_url}" alt="${a.name}"/>`
+        : `<div class="author-avatar-placeholder">✍️</div>`}
+      <div class="author-name">${a.name}</div>
+      <div class="author-book-count" id="acount-${a.id}">Loading…</div>
+    </div>
+  `).join('');
+  // Load book counts
+  allAuthors.forEach(async a => {
+    const books=await api('GET','/api/books?author_id='+a.id);
+    const el=document.getElementById('acount-'+a.id);
+    if(el) el.textContent=books.length+' book'+(books.length!==1?'s':'');
+  });
+}
+
+async function openAuthor(id){
+  const data=await api('GET','/api/authors/'+id);
+  document.getElementById('author-name').textContent=data.name;
+  document.getElementById('author-bio').textContent=data.bio||'No biography available.';
+  // photo
+  const pw=document.getElementById('author-photo-wrap');
+  pw.innerHTML=data.photo_url
+    ? `<img class="author-photo" src="${data.photo_url}" alt="${data.name}"/>`
+    : `<div class="author-photo-placeholder">✍️</div>`;
+  // links
+  const links=document.getElementById('author-links');
+  links.innerHTML='';
+  if(data.website) links.innerHTML+=`<a class="author-link" href="${data.website}" target="_blank">🌐 Website</a>`;
+  // books
+  document.getElementById('author-books-title').textContent=`Books by ${data.name}`;
+  const grid=document.getElementById('author-books-grid');
+  if(!data.books.length){grid.innerHTML=`<div class="empty"><span class="ico">📭</span><p>No books added yet.</p></div>`;}
+  else {
+    // Merge with allBooks to get coverUrl
+    const merged=data.books.map(b=>({...b,...(allBooks.find(x=>x.id===b.id)||{})}));
+    grid.innerHTML=merged.map(b=>`
+      <div class="book-card">
+        <div class="${spineClass(b.genre)} book-spine"></div>
+        <div class="book-cover" onclick="openBook(${b.id})" style="cursor:pointer">
+          ${b.cover_url
+            ? `<img src="${b.cover_url}" alt="${b.title}"/>`
+            : `<div class="book-cover-inner"><div class="book-cover-emoji">${b.emoji||'📖'}</div><div class="book-cover-title">${b.title}</div></div>`}
+        </div>
+        <div class="book-body">
+          <div class="book-title">${b.title}</div>
+          <div class="book-tags">
+            <span class="tag ${tagClass(b.genre)}">${b.genre}</span>
+            ${b.pdf_url?'<span class="tag tag-pdf">PDF</span>':''}
+          </div>
+        </div>
+        <div class="book-actions">
+          <button class="btn btn-read" onclick="openBook(${b.id})">📖 Read</button>
+          ${b.pdf_url?`<button class="btn btn-dl" onclick="dlBook(${b.id})">⬇</button>`:''}
+        </div>
+      </div>
+    `).join('');
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-author').classList.add('active');
+  document.getElementById('nb-authors').classList.add('on');
+}
+
+async function openAuthorByName(name){
+  const author=allAuthors.find(a=>a.name.toLowerCase()===name.toLowerCase());
+  if(author){ openAuthor(author.id); return; }
+  // Try loading authors first
+  const authors=await api('GET','/api/authors');
+  const found=authors.find(a=>a.name.toLowerCase()===name.toLowerCase());
+  if(found) openAuthor(found.id);
+  else toast('No author page for '+name+' yet.');
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  const btn=document.getElementById('login-btn');
+  btn.innerHTML='<span class="spin"></span>Signing in…';btn.disabled=true;
+  const res=await api('POST','/api/login',{email,password:pass});
+  btn.innerHTML='Sign In';btn.disabled=false;
+  if(res.error){showMsg('login-msg','err',res.error);return;}
+  setAdmin(res);nav('admin');
+}
+function setAdmin(data){
+  currentAdmin=data;
+  document.getElementById('nb-admin').style.display='';
+  document.getElementById('nb-account').textContent='👤 Admin';
+}
+async function doLogout(){
+  await api('POST','/api/logout');
+  currentAdmin=null;
+  document.getElementById('nb-admin').style.display='none';
+  document.getElementById('nb-account').textContent='Sign In';
+  nav('library');
+}
+
+// ── ADMIN TABS ────────────────────────────────────────────────────────────
+function atab(name){
+  document.querySelectorAll('.atab').forEach((t,i)=>t.classList.toggle('on',['books','bulk','authors'][i]===name));
+  document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('ap-'+name).classList.add('on');
+  if(name==='books') renderAdminBooks();
+  if(name==='authors') renderAdminAuthors();
+}
+
+// ── ADMIN BOOKS ───────────────────────────────────────────────────────────
+function fc(input,chosenId){
+  const file=input.files[0]||null;
+  document.getElementById(chosenId).textContent=file?file.name:'';
+  if(chosenId==='cover-chosen') coverFile=file;
+  else if(chosenId==='pdf-chosen') pdfFile=file;
+  else if(chosenId==='photo-chosen') photoFile=file;
+}
+function dv(e,id){e.preventDefault();document.getElementById(id).classList.add('dv');}
+function dl(id){document.getElementById(id).classList.remove('dv');}
+function df(e,dropId,inputId){
+  e.preventDefault();dl(dropId);
+  const file=e.dataTransfer.files[0];
+  if(!file) return;
+  const isImg=file.type.startsWith('image/');
+  const isPdf=file.type==='application/pdf';
+  if((inputId==='a-photo'||inputId==='b-cover')&&!isImg){toast('Please drop an image file.');return;}
+  if(inputId==='b-pdf'&&!isPdf){toast('Please drop a PDF file.');return;}
+  if(inputId==='cover-chosen'||inputId==='b-cover'){coverFile=file;document.getElementById('cover-chosen').textContent=file.name;}
+  else if(inputId==='b-pdf'){pdfFile=file;document.getElementById('pdf-chosen').textContent=file.name;}
+  else if(inputId==='a-photo'){photoFile=file;document.getElementById('photo-chosen').textContent=file.name;}
+}
+
+async function saveBook(){
+  const title=document.getElementById('b-title').value.trim();
+  const author=document.getElementById('b-author').value.trim();
+  if(!title||!author){showMsg('book-msg','err','Title and author are required.');return;}
+  const fd=new FormData();
+  fd.append('title',title);fd.append('author',author);
+  fd.append('genre',document.getElementById('b-genre').value);
+  fd.append('emoji',document.getElementById('b-emoji').value.trim()||'📖');
+  fd.append('description',document.getElementById('b-desc').value.trim());
+  if(coverFile) fd.append('cover',coverFile);
+  if(pdfFile)   fd.append('pdf',pdfFile);
+  const btn=document.getElementById('book-save-btn');
+  btn.innerHTML='<span class="spin"></span>Saving…';btn.disabled=true;
+  const url=editBookId?'/api/books/'+editBookId:'/api/books';
+  const method=editBookId?'PUT':'POST';
+  const res=await fetch(url,{method,body:fd,credentials:'include'}).then(r=>r.json());
+  btn.innerHTML='Save Book';btn.disabled=false;
+  if(res.error){showMsg('book-msg','err',res.error);return;}
+  showMsg('book-msg','ok',editBookId?'Book updated!':'Book added!');
+  cancelBookEdit();await loadBooks();renderAdminBooks();
+}
+
+function editBook(id){
+  const b=allBooks.find(x=>x.id===id);if(!b) return;
+  editBookId=id;
+  document.getElementById('b-title').value=b.title;
+  document.getElementById('b-author').value=b.author;
+  document.getElementById('b-genre').value=b.genre;
+  document.getElementById('b-emoji').value=b.emoji||'';
+  document.getElementById('b-desc').value=b.description||'';
+  document.getElementById('cover-chosen').textContent=b.cover_path?'(current cover kept)':'';
+  document.getElementById('pdf-chosen').textContent=b.pdf_name?'(current: '+b.pdf_name+')':'';
+  document.getElementById('book-form-title').textContent='Edit Book';
+  document.getElementById('book-cancel-btn').style.display='';
+  document.querySelector('#ap-books .card').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelBookEdit(){
+  editBookId=null;coverFile=null;pdfFile=null;
+  ['b-title','b-emoji','b-desc'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('b-author').value='';
+  document.getElementById('b-genre').selectedIndex=0;
+  document.getElementById('cover-chosen').textContent='';
+  document.getElementById('pdf-chosen').textContent='';
+  document.getElementById('b-cover').value='';
+  document.getElementById('b-pdf').value='';
+  document.getElementById('book-form-title').textContent='Add New Book';
+  document.getElementById('book-cancel-btn').style.display='none';
+}
+
+async function deleteBook(id){
+  if(!confirm('Delete this book?')) return;
+  const res=await api('DELETE','/api/books/'+id);
+  if(res.error){toast('Error: '+res.error);return;}
+  toast('Book deleted.');await loadBooks();renderAdminBooks();
+}
+
+function renderAdminBooks(){
+  const tbody=document.getElementById('admin-books-body');
+  if(!allBooks.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No books yet.</td></tr>';return;}
+  tbody.innerHTML=allBooks.map(b=>`
+    <tr>
+      <td>${b.cover_url?`<img src="${b.cover_url}" style="width:36px;height:50px;object-fit:cover;border-radius:3px"/>`:b.emoji}</td>
+      <td><strong>${b.title}</strong></td>
+      <td style="color:var(--muted)">${b.author}</td>
+      <td><span class="tag ${tagClass(b.genre)}">${b.genre}</span></td>
+      <td style="font-size:12px">${b.pdf_url?'📄 PDF':'—'} ${b.cover_url?'🖼️':'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;margin-right:4px" onclick="editBook(${b.id})">Edit</button>
+        <button class="btn btn-danger" style="font-size:11px;padding:5px 10px" onclick="deleteBook(${b.id})">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── BULK IMPORT ───────────────────────────────────────────────────────────
+function parseBulk(){
+  const lines=document.getElementById('bulk-text').value.split('\n').filter(l=>l.trim());
+  return lines.map(line=>{
+    const parts=line.split('|').map(s=>s.trim());
+    return {
+      title:parts[0]||'',
+      author:parts[1]||'',
+      genre:parts[2]||'Other',
+      description:parts[3]||'',
+      valid:!!(parts[0]&&parts[1])
+    };
+  });
+}
+
+function previewBulk(){
+  const books=parseBulk();
+  document.getElementById('bulk-count').textContent=books.filter(b=>b.valid).length+' valid books';
+  document.getElementById('bulk-preview').innerHTML=books.map((b,i)=>`
+    <div class="bulk-row">
+      <span class="bulk-row-num">${i+1}</span>
+      <span class="bulk-row-info">
+        ${b.valid
+          ? `<strong>${b.title}</strong> — ${b.author} <span class="tag tag-genre" style="margin-left:6px">${b.genre}</span>`
+          : `<span class="bulk-row-err">⚠ Missing title or author: "${b.title||'?'}"</span>`}
+      </span>
+    </div>
+  `).join('');
+}
+
+async function doBulkImport(){
+  const books=parseBulk().filter(b=>b.valid);
+  if(!books.length){showMsg('bulk-msg','err','No valid books to import. Make sure each line has Title | Author.');return;}
+  const btn=document.getElementById('bulk-btn');
+  btn.innerHTML=`<span class="spin"></span>Importing ${books.length} books…`;btn.disabled=true;
+  const res=await api('POST','/api/books/bulk',{books});
+  btn.innerHTML='Import Books';btn.disabled=false;
+  if(res.error){showMsg('bulk-msg','err',res.error);return;}
+  showMsg('bulk-msg','ok',`✅ Successfully imported ${res.added} books!`);
+  document.getElementById('bulk-text').value='';
+  document.getElementById('bulk-preview').innerHTML='';
+  document.getElementById('bulk-count').textContent='';
+  await loadBooks();
+}
+
+// ── ADMIN AUTHORS ─────────────────────────────────────────────────────────
+async function saveAuthor(){
+  const name=document.getElementById('a-name').value.trim();
+  if(!name){showMsg('author-msg','err','Name is required.');return;}
+  const fd=new FormData();
+  fd.append('name',name);
+  fd.append('bio',document.getElementById('a-bio').value.trim());
+  fd.append('website',document.getElementById('a-website').value.trim());
+  if(photoFile) fd.append('photo',photoFile);
+  const btn=document.getElementById('author-save-btn');
+  btn.innerHTML='<span class="spin"></span>Saving…';btn.disabled=true;
+  const url=editAuthorId?'/api/authors/'+editAuthorId:'/api/authors';
+  const method=editAuthorId?'PUT':'POST';
+  const res=await fetch(url,{method,body:fd,credentials:'include'}).then(r=>r.json());
+  btn.innerHTML='Save Author';btn.disabled=false;
+  if(res.error){showMsg('author-msg','err',res.error);return;}
+  showMsg('author-msg','ok',editAuthorId?'Author updated!':'Author added!');
+  cancelAuthorEdit();
+  allAuthors=await api('GET','/api/authors');
+  renderAdminAuthors();
+}
+
+function editAuthorAdmin(id){
+  const a=allAuthors.find(x=>x.id===id);if(!a) return;
+  editAuthorId=id;
+  document.getElementById('a-name').value=a.name;
+  document.getElementById('a-bio').value=a.bio||'';
+  document.getElementById('a-website').value=a.website||'';
+  document.getElementById('photo-chosen').textContent=a.photo_path?'(current photo kept)':'';
+  document.getElementById('author-form-title').textContent='Edit Author';
+  document.getElementById('author-cancel-btn').style.display='';
+  document.querySelector('#ap-authors .card').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelAuthorEdit(){
+  editAuthorId=null;photoFile=null;
+  document.getElementById('a-name').value='';
+  document.getElementById('a-bio').value='';
+  document.getElementById('a-website').value='';
+  document.getElementById('photo-chosen').textContent='';
+  document.getElementById('a-photo').value='';
+  document.getElementById('author-form-title').textContent='Add New Author';
+  document.getElementById('author-cancel-btn').style.display='none';
+}
+
+async function deleteAuthor(id){
+  if(!confirm('Delete this author?')) return;
+  const res=await api('DELETE','/api/authors/'+id);
+  if(res.error){toast('Error: '+res.error);return;}
+  toast('Author deleted.');
+  allAuthors=await api('GET','/api/authors');
+  renderAdminAuthors();
+}
+
+function renderAdminAuthors(){
+  const tbody=document.getElementById('admin-authors-body');
+  if(!allAuthors.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">No authors yet.</td></tr>';return;}
+  tbody.innerHTML=allAuthors.map(a=>`
+    <tr>
+      <td>${a.photo_url?`<img src="${a.photo_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:
+        `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px">✍️</div>`}</td>
+      <td><strong>${a.name}</strong></td>
+      <td style="color:var(--muted);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.bio||'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;margin-right:4px" onclick="editAuthorAdmin(${a.id})">Edit</button>
+        <button class="btn btn-danger" style="font-size:11px;padding:5px 10px" onclick="deleteAuthor(${a.id})">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function showMsg(id,type,text){
+  const el=document.getElementById(id);if(!el) return;
+  el.innerHTML=`<div class="msg msg-${type}">${text}</div>`;
+  setTimeout(()=>{if(el) el.innerHTML='';},4000);
+}
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeReader();});
+
+async function changePassword(){
+  const current=document.getElementById('pw-current').value;
+  const newPw=document.getElementById('pw-new').value;
+  const confirm=document.getElementById('pw-confirm').value;
+  if(!current||!newPw||!confirm){showMsg('pw-msg','err','All fields required.');return;}
+  if(newPw.length<8){showMsg('pw-msg','err','New password must be at least 8 characters.');return;}
+  if(newPw!==confirm){showMsg('pw-msg','err','New passwords do not match.');return;}
+  const res=await api('POST','/api/change-password',{currentPassword:current,newPassword:newPw});
+  if(res.error){showMsg('pw-msg','err',res.error);return;}
+  showMsg('pw-msg','ok','Password changed successfully!');
+  document.getElementById('pw-current').value='';
+  document.getElementById('pw-new').value='';
+  document.getElementById('pw-confirm').value='';
+}
+
+init();
+</script>
+</body>
+</html>
